@@ -2,6 +2,8 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import { toast } from "sonner";
 const URL='http://localhost:3000'
+const VITE_API_URL='https://street-wear-ten.vercel.app'
+
 const getCart=()=>{
     const storedCart=localStorage.getItem("cart");
     return storedCart?JSON.parse(storedCart):{products:[]}
@@ -12,7 +14,7 @@ const saveCartToStorage=(cart)=>{
 export const fetchCart=createAsyncThunk('cart/fetchCart',
     async({userId,guestId},{rejectWithValue})=>{
     try{
-        const res=await axios.get(`${URL}/streetwear/cart`,{
+        const res=await axios.get(`${VITE_API_URL}/streetwear/cart`,{
             params:{userId,guestId}
         });
     
@@ -26,7 +28,7 @@ export const fetchCart=createAsyncThunk('cart/fetchCart',
 export const addToCart=createAsyncThunk('cart/addToCart',
     async({productId,userId,guestId,size,color,quantity},{rejectWithValue})=>{
         try{
-        const res=await axios.post(`${URL}/streetwear/cart`,
+        const res=await axios.post(`${VITE_API_URL}/streetwear/cart`,
             {productId,userId,guestId,size,color,quantity});
         toast.success("the product is added successfully..")
         return res.data
@@ -40,7 +42,7 @@ export const updateProductQuantity=createAsyncThunk('cart/updateProductQuantity'
     async({productId,quantity,size,color,userId,guestId},{rejectWithValue})=>{
         try{
             console.log({productId,quantity,size,color,userId,guestId}  )
-        const res=await axios.patch(`${URL}/streetwear/cart`,
+        const res=await axios.patch(`${VITE_API_URL}/streetwear/cart`,
             {productId,quantity,size,color,userId,guestId});
             console.log(res.data);
         return res.data
@@ -55,7 +57,7 @@ export const removeProduct=createAsyncThunk('cart/removeProduct',
         try{
         const res=await axios({
                 method:'DELETE',
-                url:`${URL}/streetwear/cart`,
+                url:`${VITE_API_URL}/streetwear/cart`,
             data:{productId,size,color,userId,guestId}
        } );
         return res.data
@@ -66,7 +68,7 @@ export const removeProduct=createAsyncThunk('cart/removeProduct',
 export const mergeCarts=createAsyncThunk('cart/mergeCarts',
     async(guestId,{rejectWithValue})=>{
     try{
-        const res=await axios.post(`${URL}/streetwear/cart/mergeCarts`,{guestId},{
+        const res=await axios.post(`${VITE_API_URL}/streetwear/cart/mergeCarts`,{guestId},{
             headers:{
                 Authorization:`Bearer ${localStorage.getItem("userToken")}`
             }

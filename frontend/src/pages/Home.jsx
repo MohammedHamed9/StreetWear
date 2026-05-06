@@ -12,7 +12,7 @@ import { useEffect, useState } from "react"
 import { fetchProductsWithFilters } from "../redux/reduxSlices/product"
 import axios from "axios"
 const URL='http://localhost:3000'
-
+const VITE_API_URL='https://street-wear-ten.vercel.app'
 const Home = () => {
     const dipatch=useDispatch()
     const{products,loading,error}=useSelector((state)=>state.product)
@@ -25,7 +25,7 @@ useEffect(()=>{
     }));
     async function fetchBestSellerProduct(){
         try{
-        const res=await axios.get(`${URL}/streetwear/product/best-seller`);
+        const res=await axios.get(`${VITE_API_URL}/streetwear/product/best-seller`);
         setBestSellerProduct(res.data.best_seller); 
     }
       catch(error){

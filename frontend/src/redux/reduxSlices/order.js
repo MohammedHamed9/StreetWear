@@ -1,12 +1,13 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 const URL='http://localhost:3000'
+const VITE_API_URL='https://street-wear-ten.vercel.app'
 
 export const fetchOrders=createAsyncThunk('order/fetchUserOrders',
     async(_,{rejectWithValue})=>{
         try{
             console.log("we enter")
-        const res=await axios.get(`${URL}/streetwear/order/my-orders`,{
+        const res=await axios.get(`${VITE_API_URL}/streetwear/order/my-orders`,{
             headers:{
                 Authorization:`Bearer ${localStorage.getItem("userToken")}`
             }
@@ -22,7 +23,7 @@ export const fetchOrder=createAsyncThunk('order/fetchOrder',
     async(id,{rejectWithValue})=>{
         try{
            
-        const res=await axios.get(`${URL}/streetwear/order/${id}`,{
+        const res=await axios.get(`${VITE_API_URL}/streetwear/order/${id}`,{
             headers:{
                 Authorization:`Bearer ${localStorage.getItem("userToken")}`
             }

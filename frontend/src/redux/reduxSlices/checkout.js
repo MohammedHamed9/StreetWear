@@ -1,12 +1,13 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 const URL='http://localhost:3000'
+const VITE_API_URL='https://street-wear-ten.vercel.app'
 
 export const createCheckout=createAsyncThunk('checkout/createCheckout',
     async({checkoutItems,shippingAddress,paymentMethod,totalPrice}
         ,{rejectWithValue})=>{
            try{
-                const res=await axios.post(`${URL}/streetwear/checkout`,
+                const res=await axios.post(`${VITE_API_URL}/streetwear/checkout`,
                 {checkoutItems,shippingAddress,paymentMethod,totalPrice},
                 {
                     headers:{
@@ -27,7 +28,7 @@ export const payCheckout=createAsyncThunk('checkout/payCheckout',
     async({paymentDetails,paymentStatus,id}
         ,{rejectWithValue})=>{
            try{
-                const res=await axios.put(`${URL}/streetwear/checkout/${id}/pay`,
+                const res=await axios.put(`${VITE_API_URL}/streetwear/checkout/${id}/pay`,
                 {paymentDetails,paymentStatus},
                 {
                     headers:{
@@ -47,7 +48,7 @@ export const payCheckout=createAsyncThunk('checkout/payCheckout',
 export const finalizeCheckOut=createAsyncThunk('checkout/finalizeCheckOut',
     async(id,{rejectWithValue})=>{
            try{
-                const res=await axios.put(`${URL}/streetwear/checkout/${id}/finalize`,{},
+                const res=await axios.put(`${VITE_API_URL}/streetwear/checkout/${id}/finalize`,{},
                 {
                     headers:{
                         Authorization:`Bearer ${localStorage.getItem("userToken")}`

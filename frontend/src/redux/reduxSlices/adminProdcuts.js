@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import { toast } from "sonner";
 const URL='http://localhost:3000'
+const VITE_API_URL='https://street-wear-ten.vercel.app'
 
 export const createProduct=createAsyncThunk('admin/createProduct',
     async({
@@ -24,7 +25,7 @@ export const createProduct=createAsyncThunk('admin/createProduct',
                 fit
         },{rejectWithValue})=>{
         try{
-            const res=await axios.post(`${URL}/streetwear/product`,
+            const res=await axios.post(`${VITE_API_URL}/streetwear/product`,
                 {
                 name,
                 description,
@@ -60,7 +61,7 @@ export const createProduct=createAsyncThunk('admin/createProduct',
 export const updateProduct=createAsyncThunk('admin/updateProduct',
     async({id ,productData},{rejectWithValue})=>{
         try{
-            const res=await axios.patch(`${URL}/streetwear/product/${id}`,productData,{
+            const res=await axios.patch(`${VITE_API_URL}/streetwear/product/${id}`,productData,{
                 headers:{
                     Authorization:`Bearer ${localStorage.getItem("userToken")}`
                 }
@@ -77,7 +78,7 @@ export const updateProduct=createAsyncThunk('admin/updateProduct',
 export const getAllProducts=createAsyncThunk('admin/getAllProducts',
     async(_,{rejectWithValue})=>{
         try{
-            const res=await axios.get(`${URL}/streetwear/product`,
+            const res=await axios.get(`${VITE_API_URL}/streetwear/product`,
             {
                     headers:{
                         Authorization:`Bearer ${localStorage.getItem("userToken")}`
@@ -96,7 +97,7 @@ export const deleteProduct=createAsyncThunk('admin/deleteProduct',
         try{
             const res=await axios(
                 {method:'DELETE',
-                url:`${URL}/streetwear/product/${id}`,
+                url:`${VITE_API_URL}/streetwear/product/${id}`,
                     headers:{
                         Authorization:`Bearer ${localStorage.getItem("userToken")}`
                     },

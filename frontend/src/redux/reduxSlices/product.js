@@ -3,6 +3,8 @@ import axios from "axios";
 import { toast } from "sonner";
 
 const URL='http://localhost:3000'
+const VITE_API_URL='https://street-wear-ten.vercel.app'
+
 const initialState={
     products:[],
     selectedProduct:null,
@@ -27,7 +29,7 @@ export const fetchProductsWithFilters=createAsyncThunk(
     'product/fetchProductsWithFilters',
     async(queryParams ,{rejectWithValue})=>{
         try{
-            const res=await axios.get(`${URL}/streetwear/product`,{
+            const res=await axios.get(`${VITE_API_URL}/streetwear/product`,{
                 params:queryParams
             });
            
@@ -41,7 +43,7 @@ export const fetchProductsWithFilters=createAsyncThunk(
 export const fetchProductDetails=createAsyncThunk('product/fetchProductDetails',
     async(id ,{rejectWithValue})=>{
         try{
-            const res=await axios.get(`${URL}/streetwear/product/${id}`);
+            const res=await axios.get(`${VITE_API_URL}/streetwear/product/${id}`);
             return res.data
         }catch(error){
         toast.error(error.response.data.message);
@@ -52,7 +54,7 @@ export const fetchProductDetails=createAsyncThunk('product/fetchProductDetails',
 export const fetchSimilarProducts=createAsyncThunk('product/fetchSimilarProducts',
     async(id ,{rejectWithValue})=>{
         try{
-            const res=await axios.get(`${URL}/streetwear/product/similr/${id}`);
+            const res=await axios.get(`${VITE_API_URL}/streetwear/product/similr/${id}`);
             return res.data
         }catch(error){
             toast.error(error.response.data.message);

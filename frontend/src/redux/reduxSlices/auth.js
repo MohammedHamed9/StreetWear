@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from"axios"
 import { toast } from "sonner";
 const URL='http://localhost:3000'
+const VITE_API_URL='https://street-wear-ten.vercel.app'
 
 //LOCAL-STORAGE VARS
 const userFromStorage=
@@ -20,7 +21,7 @@ let initialState={
 export const loginUser=createAsyncThunk('auth/loginUser',
     async(userData,{rejectWithValue})=>{
     try{
-   const res=await axios.post(`${URL}/streetwear/user/login`,userData);
+   const res=await axios.post(`${VITE_API_URL}/streetwear/user/login`,userData);
         localStorage.setItem("userInfo",JSON.stringify(res.data.user));
         localStorage.setItem("userToken",res.data.token);
         toast.success("Login Successfully✅")
@@ -35,7 +36,7 @@ export const loginUser=createAsyncThunk('auth/loginUser',
 export const registerUser=createAsyncThunk('auth/registerUser',
     async(userData,{rejectWithValue})=>{
         try{
-        const res=await axios.post(`${URL}/streetwear/user/register`,userData);
+        const res=await axios.post(`${VITE_API_URL}/streetwear/user/register`,userData);
         localStorage.setItem("userInfo",JSON.stringify(res.data.user))
         localStorage.setItem("userToken",res.data.token);
         toast.success("Register successfully✅")

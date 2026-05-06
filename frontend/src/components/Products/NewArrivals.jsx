@@ -4,6 +4,8 @@ import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import {Link} from "react-router-dom"
 
 const URL='http://localhost:3000'
+const VITE_API_URL='https://street-wear-ten.vercel.app'
+
 const NewArrivals = () => {
   const scrollRef=useRef();
   const [canScrollLeft,setCanScrollLeft]=useState(true);
@@ -12,7 +14,7 @@ const NewArrivals = () => {
   useEffect(()=>{
     async function fetchNewArrivals(){
       try{
-        const res=await axios.get(`${URL}/streetwear/product/new-arrivals`);
+        const res=await axios.get(`${VITE_API_URL}/streetwear/product/new-arrivals`);
         setNewArrivals(res.data.newArrivals);
       }
       catch(error){

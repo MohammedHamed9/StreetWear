@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import { toast } from "sonner";
 const URL='http://localhost:3000'
-
+const VITE_API_URL='https://street-wear-ten.vercel.app'
 export const createUser=createAsyncThunk('admin/createUser',
     async({name,email,password,role},{rejectWithValue})=>{
         try{
@@ -39,7 +39,7 @@ export const updateUser=createAsyncThunk('admin/updateUser',
 export const getUser=createAsyncThunk('admin/getUser',
     async({id,fields},{rejectWithValue})=>{
         try{
-            const res=await axios.get(`${URL}/streetwear/user/get-user/${id}`,
+            const res=await axios.get(`${VITE_API_URL}/streetwear/user/get-user/${id}`,
             {
                     headers:{
                         Authorization:`Bearer ${localStorage.getItem("userToken")}`
@@ -57,7 +57,7 @@ export const getUser=createAsyncThunk('admin/getUser',
 export const getAllUser=createAsyncThunk('admin/getAllUser',
     async(_,{rejectWithValue})=>{
         try{
-            const res=await axios.get(`${URL}/streetwear/user/get-users`,
+            const res=await axios.get(`${VITE_API_URL}/streetwear/user/get-users`,
             {
                     headers:{
                         Authorization:`Bearer ${localStorage.getItem("userToken")}`
@@ -76,7 +76,7 @@ export const deleteUser=createAsyncThunk('admin/deleteUser',
         try{
             const res=await axios(
                 {method:'DELETE',
-                url:`${URL}/streetwear/user/delete-user/${id}`,
+                url:`${VITE_API_URL}/streetwear/user/delete-user/${id}`,
                     headers:{
                         Authorization:`Bearer ${localStorage.getItem("userToken")}`
                     },
