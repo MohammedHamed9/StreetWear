@@ -1,0 +1,347 @@
+const Brand= require("../models/BrandModel");
+const Category = require("../models/CategoryModel");
+const Product=require("../models/ProductModel");
+const appError = require("../utils/appError");
+const uploadToCloudinary=require("../utils/uploadToCloudinary");
+const productCtrl={
+    createProduct:async(req,res,next)=>{
+        try{
+            let {
+                name,
+                description,
+                price,
+                discountPrice,
+                category,
+                brand,
+                variants,
+                collections,
+                material,
+                gender,
+                isFeatured,
+                isPublished,
+                tags,
+                dimenstions,
+                weight,
+                sku,
+                fit
+        }=req.body
+        if (category) {
+            const c = await Category.findOne({ name: category });
+            if (!c) return next(new appError("Category not found", 404));
+            req.body.category = c._id; 
+        }
+
+        if (brand) {
+            const b = await Brand.findOne({ name: brand });
+            if (!b) return next(new appError("Brand not found", 404));
+            req.body.brand = b._id;
+        }
+        let images=[]
+        if(req.files){
+            const uploadedPromises= req.files.map(async(el)=>
+                await uploadToCloudinary(el.buffer,"products"))
+                    //علشان ال ماب مش بتستني ال اسينك كود ف 
+                    // النتيجه هتطلع فاضيه لو معملتش كدا 
+                    const result=await Promise.all(uploadedPromises)
+                   const UrlResults=result.map((el)=>({ url: el.secure_url, altText: "" }))
+                    images=UrlResults
+            //const result=await uploadToCloudinary(req.file.buffer,"users");
+        }
+        if(req.body.variants)
+            req.body.variants=JSON.parse( req.body.variants)
+       
+        const product=await Product.create({
+                name,
+                description,
+                price,
+                discountPrice,
+                category:req.body.category,
+                brand:req.body.brand,
+                variants:req.body.variants,
+                collections,
+                material,
+                gender,
+                images:images,
+                isFeatured,
+                isPublished,
+                tags,
+                dimenstions,
+                weight,
+                sku,
+                fit,
+                admin_created_id:req.user._id
+        });
+        res.status(201).json({
+            message:"The Product is created successfully✅",
+            product
+        })
+        }catch(error){
+            console.log(error);
+            next(new appError(error));
+        }
+    },
+    updateProduct:async (req,res,next)=>{
+        try{
+             const p = await Product.findById(req.params.id);
+            if(!p){
+                return next(new appError('The Product is not exist!',404));
+            }
+            
+            if(req.body.images){
+                req.body.images=JSON.parse(req.body.images);
+            }
+            if (req.body.variants){
+                    req.body.variants = JSON.parse(req.body.variants);
+            }   
+            if (req.body.tags){
+                req.body.tags = JSON.parse(req.body.tags);
+            }
+            req.body.admin_update_id=req.user._id;
+
+        if (req.body.category) {
+            const category=JSON.parse(req.body.category).name
+            const c = await Category.findOne({ name: category });
+            if (!c) return next(new appError("Category not found", 404));
+            req.body.category = c._id; 
+        }
+
+        if (req.body.brand) {
+            const brand =JSON.parse(req.body.brand).name;
+            const b = await Brand.findOne({ name: brand });
+            if (!b) return next(new appError("Brand not found", 404));
+            req.body.brand = b._id;
+        }
+      if(req.files&&req.files.length>0){
+            const uploadedPromises=req.files.map(async(el)=>
+                await uploadToCloudinary(el.buffer,'products'))
+
+                const result=await Promise.all(uploadedPromises);
+
+                const UrlResults=result.map((el)=>(
+                req.body.images.push( {url:el.secure_url,altText:""})
+                ));
+        }
+
+            const product=await Product.findByIdAndUpdate({_id:req.params.id},req.body,{
+                new:true,
+                runValidators:true
+            });
+            return res.status(200).json({
+                message:"The Product is updated successfully✅",
+                //product
+            });
+        }catch(error){
+            console.log(error);
+            next(new appError(error));
+        }
+    },
+    getAllProducts:async(req,res,next)=>{
+        try{
+        const page=parseInt(req.query.page,10)||1;
+        const limit=parseInt(req.query.limit,10)||100;
+        const skip=(page-1)*limit
+
+        let {collection, size, color, gender, minPrice, maxPrice, sortBy, 
+        search, category, material, brand
+        } =req.query
+        let query={}
+    
+        if(collection &&collection.toLowerCase()!='all'){
+            query.collection=collection.trim()
+        }
+        if(gender){
+            query.gender=gender.trim()
+        }
+        if(material)
+            query.material=material.trim()
+
+        if (category) {
+            const c = await Category.find({$or:[
+            {name:category.trim()},
+            {type:category.trim()}]});
+            if (!c) return next(new appError("Category not found", 404));
+            if(c.length==1)
+            query.category = c[0]._id; 
+            else{
+                let categories=[]
+                categories=c.map((el,index)=>categories[index]=el._id);
+               query.category={$in:categories}
+            }
+        }
+        if (brand) {
+            brand=brand.trim().includes(",")?brand.split(','):brand
+            const b = await Brand.find({ name:{$in: brand }});
+            if (!b) return next(new appError("Brand not found", 404));
+            if(b.length==1)
+                query.brand = b[0]._id;
+            else{
+                let brands=[]
+                brands=b.map((el,index)=> brands[index]=el._id)
+                query.brand={$in:brands}
+            }
+        }
+
+        //SORT
+        if(sortBy){
+            switch(sortBy.trim()){
+                case "priceAsc":
+                   sortBy={price:1}
+                   break;
+                case "priceDesc":
+                    sortBy={price:-1}
+                    break;
+                case "popularity":
+                    sortBy={rating:-1}
+                    break;
+                default:
+                sortBy={createdAt:-1}
+            }
+  
+        }
+        //SELECT FIELDS
+         let fields=""
+        if(req.query.fields){
+            fields=req.query.fields.trim().split(",").join(" ")
+        }else{
+            fields=("-__v");
+        }
+
+        //PRICE
+        if(minPrice||maxPrice){
+            query.price={}
+            if(minPrice) 
+                query.price.gte=Number(minPrice);
+             if(maxPrice) 
+                query.price.lte=Number(maxPrice);
+             queryStr=JSON.stringify(query.price).replace(/\b(gte|gt|lte|lt)\b/g,match=> `$${match}`);
+             query.price=JSON.parse(queryStr)
+        }
+        //SEARCH
+        if(search){
+            query.$or=[
+                { name:{$regex:search.trim(),$options:'i'}},
+                { description:{$regex:search.trim(),$options:'i'}}
+            ]
+        }
+        if(size){
+            size=size.trim().includes(",")?size.split(","):size
+            query["variants.size"]={$in:size}
+        }
+        if(color){
+            color=color.trim().includes(",")?color.split(","):color
+            query["variants.color"]={$in:color}
+        }
+            const products=await Product.find(query)
+            .populate("category","name type")
+            .populate("brand","name")
+            .select(fields)
+            .sort(sortBy)
+            .skip(skip)
+            .limit(limit);
+            const total=await Product.countDocuments(query);
+            const hasPrev=page>1;
+            const hasNext=(page * limit) <total
+            return res.status(200).json({
+                products,
+                paginate:{
+                    page,
+                    total,
+                    hasPrev,
+                    hasNext,
+                }
+            });
+        }catch(error){
+            console.log(error);
+            next(new appError(error));
+        }
+    },
+    getProduct:async(req,res,next)=>{
+        try{
+             const product = await Product.findById(req.params.id)
+             .populate("category","name type -_id")
+             .populate("brand","name -_id");
+            if(!product){
+                return next(new appError('The Product is not exist!',404));
+            }
+            return res.status(200).json({
+                product
+            });
+        }catch(error){
+            console.log(error);
+            next(new appError(error));
+        }
+    },
+    getSimilrProducts:async(req,res,next)=>{
+        try{
+             const product = await Product.findById(req.params.id)
+            if(!product){
+                return next(new appError('The Product is not exist!',404));
+            }
+             similtProducts= await Product.find({
+               _id:{$ne:req.params.id},
+                category:product.category,
+                gender:product.gender
+             }).limit(4)
+             .populate("category","name type -_id")
+             .populate("brand","name -_id");
+            return res.status(200).json({
+                similtProducts
+            });
+        }catch(error){
+            console.log(error);
+            next(new appError(error));
+        }
+    },
+    getBestSellerProduct:async(req,res,next)=>{
+        try{
+             const product = await Product.findOne().sort({rating:-1})
+             .populate("category","name type -_id")
+             .populate("brand","name -_id");
+            if(!product){
+                return next(new appError('The Product is not exist!',404));
+            }
+
+            return res.status(200).json({
+                best_seller:product
+            });
+        }catch(error){
+            console.log(error);
+            next(new appError(error));
+        }
+    },
+    getNewArrivalsProducts:async(req,res,next)=>{
+        try{
+             const product = await Product.find().sort({createdAt:-1}).limit(8)
+             .populate("category","name type -_id")
+             .populate("brand","name -_id");
+            if(!product){
+                return next(new appError('The Product is not exist!',404));
+            }
+
+            return res.status(200).json({
+               newArrivals:product
+            });
+        }catch(error){
+            console.log(error);
+            next(new appError(error));
+        }
+    },
+    deleteProduct:async(req,res,next)=>{
+        try{
+            const product=await Product.findById(req.params.id);
+            if(!product)
+             return res.status(404).json({
+            message:"the Product is not found!"});
+                    
+             await Product.findByIdAndDelete(req.params.id);
+
+            return res.status(203).json({
+                message:"The Product is deleted successfully✅",
+            });
+        }catch(error){
+            console.log(error);
+            next(new appError(error));
+        }
+    },
+}
+module.exports=productCtrl
