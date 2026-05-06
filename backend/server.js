@@ -18,7 +18,10 @@ const checkoutRoutes=require("./routes/checkoutRoutes")
 const orderRoutes=require("./routes/orderRoutes")
 const subscriberRoutes=require("./routes/subscriberRoutes")
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: ["http://localhost:5173", "https://street-wear-1oxg.vercel.app"], 
+  credentials: true
+}));
 app.use(morgan("dev"))
 app.use("/streetwear/user",userRoutes)
 app.use("/streetwear/category",categoryRoutes)
