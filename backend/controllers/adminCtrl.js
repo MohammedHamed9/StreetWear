@@ -2,17 +2,13 @@ const slugify=require("slugify")
 const User=require("../models/UserModel");
 const Order=require("../models/OrderModel");
 const appError = require("../utils/appError");
+const catchAsync = require("./catchAsync");
 const adminCtrl={
-    createUser:async (req,res,next)=>{
-        try{
+    createUser: catchAsync(async (req,res,next)=>{
             let {name,email,password,role}=req.body;
             const user=await User.findOne({email});
             if(user)
-            return res.status(400).json({
-                message:"this user is already exists!",
-                user
-            });
-
+                return next(new appError("this user is already exists!",400));
             const newUser=await User.create({
                 name,
                 email,
@@ -22,32 +18,19 @@ const adminCtrl={
             return res.status(201).json({
                 message:"New User is created✅",
                 user:newUser
-            });
-        }catch(error){
-            console.log(error);
-            next(new appError(error));
-        }
-    },
-    updateUser:async (req,res,next)=>{
-        try{
+            })}),
+    updateUser: catchAsync(async (req,res,next)=>{
             const user=await User.findById(req.params.id);
             if(!user)
-            return res.status(400).json({
-                message:"this user is not exists!",
-            });
+                return next(new appError("this user is not exists!",404));
             const updatedUser=await User.findByIdAndUpdate({_id:req.params.id},req.body
                 ,{new:true,runValidators:true});
             return res.status(200).json({
                 message:"the user is updated",
                 updatedUser
             })
-        }catch(error){
-            console.log(error);
-            next(new appError(error));
-        }
-    },
-    getUser:async (req,res,next)=>{
-        try{
+    }),
+    getUser: catchAsync(async (req,res,next)=>{
             let fields="-__v"
             if(req.query.fields)
                 fields=req.query.fields.split(",").join(" ")
@@ -55,53 +38,28 @@ const adminCtrl={
             if(!user){
             return next(new appError('this user is not exist!',404));
             }
-            
             return res.status(200).json({
                 user
             });
-        }catch(error){
-            console.log(error);
-            next(new appError(error));
-        }
-    },
-     getAllUsers:async (req,res,next)=>{
-        try{
+    }),
+     getAllUsers:catchAsync(async (req,res,next)=>{
            const users=await User.find({}).sort({createdAt:-1});
-
              return res.status(200).json({
                 users
             })
-        }catch(error){
-            console.log(error);
-            next(new appError(error));
-        }
-    },
-    deleteUser:async(req,res,next)=>{
-        try{
+    }),
+    deleteUser:catchAsync(async(req,res,next)=>{
             await User.findByIdAndDelete({_id: req.params.id})
-
             res.status(204).json({
                 message:"the user is deleted successfully"});
-        }
-        catch(error){
-            console.log(error);
-            next(new appError('somthing went wrong!',500));
-        }
-    },
-
-    getAllOrders:async (req,res,next)=>{
-            try{
+    }),
+    getAllOrders: catchAsync(async (req,res,next)=>{
                 const orders=await Order.find({}).populate("user","name email role")
                 return res.status(200).json({
                     orders
-                });
-            }catch(error){
-                console.log(error);
-                next(new appError(error));
-            }
-        },
-    getOrder:async (req,res,next)=>{
-        try{
+                })
+        }),
+    getOrder: catchAsync(async (req,res,next)=>{
             let fields="-__v"
             if(req.query.fields)
                 fields=req.query.fields.split(",").join(" ")
@@ -109,26 +67,17 @@ const adminCtrl={
             if(!order){
             return next(new appError('this order is not exist!',404));
             }
-            
             return res.status(200).json({
                 order
             });
-        }catch(error){
-            console.log(error);
-            next(new appError(error));
-        }
-    },
-    updateOrder:async (req,res,next)=>{
-            try{
+    }),
+    updateOrder: catchAsync(async (req,res,next)=>{
                 const order=await Order.findById(req.params.id);
                 if(!order)
-                return res.status(404).json({
-                    message:"this order is not exists!"
-                });
+                return next(new appError("this order is not exists!",404));
                 if(req.body.status&&req.body.status=='Delivered'){
                     req.body.isDelivered=true
                     req.body.deliveredAt=Date.now()
-
                 }
                  if(req.body.isDelivered&&req.body.isDelivered=='Delivered'){
                     req.body.deliveredAt=Data.now()
@@ -140,27 +89,14 @@ const adminCtrl={
                     message:"the user is updated successfully ✅",
                     updatedOrder
                 });
-            }catch(error){
-                console.log(error);
-                next(new appError(error));
-            }
-        },
-    deleteOrder:async(req,res,next)=>{
-        try{
+        }),
+    deleteOrder: catchAsync(async(req,res,next)=>{
             const order=await Order.findById(req.params.id);
             if(!order)
-                return res.status(404).json({
-                message:"the Order is not found!"});
-        
+                return next(new appError("this order is not exists!",404));
             await Order.findByIdAndDelete({_id: req.params.id})
-
             res.status(204).json({
                 message:"the Order is deleted successfully"});
-        }
-        catch(error){
-            console.log(error);
-            next(new appError('somthing went wrong!',500));
-        }
-    },
+    }),
 }
 module.exports=adminCtrl;

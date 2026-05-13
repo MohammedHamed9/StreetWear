@@ -1,6 +1,7 @@
 const jwt=require("jsonwebtoken");
 const crypto=require("crypto")
 const appError = require("../utils/appError");
+const catchAsync = require("./catchAsync");
 const User=require("../models/UserModel");
 const uploadToCloudinary = require("../utils/uploadToCloudinary");
 const sendEmail=require("../utils/sendEmail")
@@ -18,14 +19,12 @@ const createCooki=(token,res)=>{
     res.cookie('jwt',token,cookieObt)
 }
 const usetCtrl={
-    resgister:async(req,res,next)=>{
-        try{
+    resgister: catchAsync(async(req,res,next)=>{
             console.log(req.body);
             const {name,email,password}=req.body;
             const oldUser=await User.findOne({email});
             if(oldUser)
                 return next(new appError("User already exists", 400));
-
             const user=await User.create(req.body);
             const token=signToken(user.id);
             return res.status(201).json({
@@ -39,16 +38,9 @@ const usetCtrl={
                 },
                 token
             });
-        }
-        catch(error){
-            console.log(error);
-            return next(error);
-        }
-    },
-    login:async(req,res,next)=>{
-        try{            
+    }),
+    login: catchAsync(async(req,res,next)=>{
             const{email,password}=req.body
-
             const oldUser=await User.findOne({email})
             if(!oldUser||!await oldUser.matchPasswords(password,oldUser.password))
              return  next(new appError("Invalid Credentails", 400));
@@ -65,12 +57,8 @@ const usetCtrl={
                 user,
                 token
             });
-        }catch(err){
-            console.log(err);
-            return next(new appError("something went wrong!",500));
-        }
-    },
-    logout:async(req,res,next)=>{
+    }),
+    logout: catchAsync(async(req,res,next)=>{
         res.cookie('jwt','logout',{
         expires:new Date(Date.now()+10*1000),
         httpOnly:true
@@ -78,21 +66,14 @@ const usetCtrl={
    res.status(200).json({
     message:'loggedout successfully..'
    });
-    },
-    getMe:async(req,res,next)=>{
-        try{
-            
+    }),
+    getMe: catchAsync(async(req,res,next)=>{
             return res.status(200).json({
                 message:`welcome `,
                 User:req.user
             });
-        }catch(err){
-            console.log(err);
-            return next(new appError("something went wrong!",500));
-        }
-    },
-    updateMe:async(req,res,next)=>{ 
-        try{
+    }),
+    updateMe: catchAsync(async(req,res,next)=>{ 
             console.log(req.body);
          if(req.file){
             let result=await uploadToCloudinary(req.file.buffer,"users");
@@ -106,13 +87,8 @@ const usetCtrl={
                 message:`your data is successfully updated.`,
                 user
             });
-        }catch(err){
-            console.log(err);
-            return next(new appError("something went wrong!",500));
-        }
-    },
-    forgetPassword:async(req,res,next)=>{
-       try{
+    }),
+    forgetPassword: catchAsync(async(req,res,next)=>{
         const email=req.body.email;
          const user=await User.findOne({email});
         if(!user){
@@ -132,13 +108,8 @@ const usetCtrl={
           res.status(200).json({
             message:'the email is sent...'
         })
-        }catch(err){
-            console.log(err);
-            return next(new appError("something went wrong!",500));
-        }
-    },
-    resetPassword:async(req,res,next)=>{
-       try{
+    }),
+    resetPassword: catchAsync(async(req,res,next)=>{
         const hashToken=crypto.createHash("sha256").update(req.params.token).digest('hex');
         const user=await User.findOne({
             passwordRestToken:hashToken,
@@ -158,13 +129,8 @@ const usetCtrl={
             message:'The password is updated successfully..',
             token
         });
-        }catch(err){
-            console.log(err);
-            return next(new appError("something went wrong!",500));
-        }
-    },
-    updatePassword:async(req,res,next)=>{
-       try{
+    }),
+    updatePassword: catchAsync(async(req,res,next)=>{
         const oldPassword=req.body.password;
         const newPassword=req.body.newPassword;
         
@@ -178,11 +144,6 @@ const usetCtrl={
         res.status(200).json({
             message:'the password is updated successfully..'
         });
-        }catch(err){
-            console.log(err);
-            return next(new appError("something went wrong!",500));
-        }
-    },
-    
+    }),
 }
 module.exports=usetCtrl;

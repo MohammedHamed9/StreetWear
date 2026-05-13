@@ -1,16 +1,14 @@
 const slugify=require("slugify")
 const appError = require("../utils/appError");
+const catchAsync = require("./catchAsync");
 const Checkout = require("../models/CheckoutModel");
 const Order=require("../models/OrderModel")
 const Cart=require("../models/CartModel")
 const checkoutCtrl={
-    createCheckout:async (req,res,next)=>{
-        try{
+    createCheckout: catchAsync(async (req,res,next)=>{
             const {checkoutItems,shippingAddress,paymentMethod,totalPrice}=req.body
             if(!checkoutItems ||checkoutItems.length===0)
-            return res.status(400).json({
-                message:"no items in the checkout!",
-            });
+            return next(new appError("No checkout items provided!",400));
             const checkout=await Checkout.create({
                user:req.user._id,
                 checkoutItems,
@@ -21,19 +19,12 @@ const checkoutCtrl={
             return res.status(201).json({
                 checkout
             });
-        }catch(error){
-            console.log(error);
-            next(new appError(error));
-        }
-    },
-    payCheckout:async (req,res,next)=>{
-        try{
+    }),
+    payCheckout: catchAsync(async (req,res,next)=>{
         const {paymentDetails,paymentStatus}=req.body
             const checkout=await Checkout.findById(req.params.id);
             if(!checkout)
-            return res.status(400).json({
-                message:"Checkout Not Found!",
-            });
+            return next(new appError("Checkout Not Found!",404));
         if(paymentStatus=="paid"){
             checkout.isPaid=true;
             checkout.paymentStatus=paymentStatus
@@ -48,19 +39,12 @@ const checkoutCtrl={
                 message:"Invalid Payment Status!",
             });
         }
-        }catch(error){
-            console.log(error);
-            next(new appError(error));
-        }
-    },
+    }),
     //mark it as Finalized and convert it to new order
-    finalizeCheckOut:async (req,res,next)=>{
-        try{
+    finalizeCheckOut: catchAsync(async (req,res,next)=>{
             const checkout=await Checkout.findById(req.params.id);
             if(!checkout)
-            return res.status(404).json({
-                message:"Checkout Not Found!",
-            });
+            return next(new appError("Checkout Not Found!",404));
         if(checkout.isPaid && !checkout.isFinalized){
             const newOrder=await Order.create({
                 user:checkout.user,
@@ -77,25 +61,15 @@ const checkoutCtrl={
             checkout.isFinalized=true;
             checkout.finalizedAt=Date.now()
             await checkout.save()
-
             await Cart.findOneAndDelete({user:req.user._id});
-    
             return res.status(200).json({
                 newOrder
             });
         }   else if ( checkout.isFinalized){
-            return res.status(400).json({
-                message:"Checkout is already Finalized!",
-            });
+            return next(new appError("Checkout is already Finalized!",400));
         }else{
-            return res.status(400).json({
-                message:"Checkout is not paid!",
-            });
+            return next(new appError("Checkout is not paid yet!",400));
         }
-        }catch(error){
-            console.log(error);
-            next(new appError(error));
-        }
-    },
+    }),
 }
 module.exports=checkoutCtrl;

@@ -2,10 +2,10 @@ const Brand= require("../models/BrandModel");
 const Category = require("../models/CategoryModel");
 const Product=require("../models/ProductModel");
 const appError = require("../utils/appError");
+const catchAsync = require("./catchAsync");
 const uploadToCloudinary=require("../utils/uploadToCloudinary");
 const productCtrl={
-    createProduct:async(req,res,next)=>{
-        try{
+    createProduct: catchAsync(async(req,res,next)=>{
             let {
                 name,
                 description,
@@ -30,7 +30,6 @@ const productCtrl={
             if (!c) return next(new appError("Category not found", 404));
             req.body.category = c._id; 
         }
-
         if (brand) {
             const b = await Brand.findOne({ name: brand });
             if (!b) return next(new appError("Brand not found", 404));
@@ -47,7 +46,6 @@ const productCtrl={
                     images=UrlResults
             //const result=await uploadToCloudinary(req.file.buffer,"users");
         }
-
         const product=await Product.create({
                 name,
                 description,
@@ -73,27 +71,19 @@ const productCtrl={
             message:"The Product is created successfully✅",
             product
         })
-        }catch(error){
-            console.log(error);
-            next(new appError(error));
-        }
-    },
-    updateProduct:async (req,res,next)=>{
-        try{
+    }),
+    updateProduct: catchAsync(async (req,res,next)=>{
              const p = await Product.findById(req.params.id);
             if(!p){
                 return next(new appError('The Product is not exist!',404));
             }
-            
             req.body.admin_update_id=req.user._id;
-
         if (req.body.category) {
             const category=JSON.parse(req.body.category).name
             const c = await Category.findOne({ name: category });
             if (!c) return next(new appError("Category not found", 404));
             req.body.category = c._id; 
         }
-
         if (req.body.brand) {
             const brand =JSON.parse(req.body.brand).name;
             const b = await Brand.findOne({ name: brand });
@@ -104,15 +94,12 @@ const productCtrl={
             req.body.images=[];
             const uploadedPromises=req.files.map(async(el)=>
                 await uploadToCloudinary(el.buffer,'products'))
-
                 const result=await Promise.all(uploadedPromises);
                 console.log(result)
-
                 const UrlResults=result.map((el)=>(
                 req.body.images.push( {url:el.secure_url,altText:""})
                 ));
         }
-
             const product=await Product.findByIdAndUpdate({_id:req.params.id},req.body,{
                 new:true,
                 runValidators:true
@@ -121,13 +108,8 @@ const productCtrl={
                 message:"The Product is updated successfully✅",
                 //product
             });
-        }catch(error){
-            console.log(error);
-            next(new appError(error));
-        }
-    },
-    getAllProducts:async(req,res,next)=>{
-        try{
+    }),
+    getAllProducts: catchAsync(async(req,res,next)=>{
      let { sortBy,page,limit,skip,fields, collections, gender, minPrice, maxPrice, 
         search, category, brand,material,size,color
         } =req.query;
@@ -135,7 +117,6 @@ const productCtrl={
     if(collections &&collections.toLowerCase()!='all'){
         query.collections=collections 
         }
-  
     if (category) {
         const c = await Category.find({$or:[
                 {name:category},
@@ -203,13 +184,8 @@ const productCtrl={
                     hasNext,
                 }
             });
-        }catch(error){
-            console.log(error);
-            next(new appError(error));
-        }
-    },
-    getProduct:async(req,res,next)=>{
-        try{
+    }),
+    getProduct: catchAsync(async(req,res,next)=>{
              const product = await Product.findById(req.params.id)
              .populate("category","name type -_id")
              .populate("brand","name -_id");
@@ -219,13 +195,8 @@ const productCtrl={
             return res.status(200).json({
                 product
             });
-        }catch(error){
-            console.log(error);
-            next(new appError(error));
-        }
-    },
-    getSimilrProducts:async(req,res,next)=>{
-        try{
+    }),
+    getSimilrProducts: catchAsync(async(req,res,next)=>{
              const product = await Product.findById(req.params.id)
             if(!product){
                 return next(new appError('The Product is not exist!',404));
@@ -240,61 +211,37 @@ const productCtrl={
             return res.status(200).json({
                 similtProducts
             });
-        }catch(error){
-            console.log(error);
-            next(new appError(error));
-        }
-    },
-    getBestSellerProduct:async(req,res,next)=>{
-        try{
+    }),
+    getBestSellerProduct: catchAsync(async(req,res,next)=>{
              const product = await Product.findOne().sort({rating:-1})
              .populate("category","name type -_id")
              .populate("brand","name -_id");
             if(!product){
                 return next(new appError('The Product is not exist!',404));
             }
-
             return res.status(200).json({
                 best_seller:product
             });
-        }catch(error){
-            console.log(error);
-            next(new appError(error));
-        }
-    },
-    getNewArrivalsProducts:async(req,res,next)=>{
-        try{
+    }),
+    getNewArrivalsProducts: catchAsync(async(req,res,next)=>{
              const product = await Product.find().sort({createdAt:-1}).limit(8)
              .populate("category","name type -_id")
              .populate("brand","name -_id");
             if(!product){
                 return next(new appError('The Product is not exist!',404));
             }
-
             return res.status(200).json({
                newArrivals:product
             });
-        }catch(error){
-            console.log(error);
-            next(new appError(error));
-        }
-    },
-    deleteProduct:async(req,res,next)=>{
-        try{
+    }),
+    deleteProduct: catchAsync(async(req,res,next)=>{
             const product=await Product.findById(req.params.id);
             if(!product)
-             return res.status(404).json({
-            message:"the Product is not found!"});
-                    
+             return next(new appError('The Product is not exist!',404));
              await Product.findByIdAndDelete(req.params.id);
-
             return res.status(203).json({
                 message:"The Product is deleted successfully✅",
             });
-        }catch(error){
-            console.log(error);
-            next(new appError(error));
-        }
-    },
+    }),
 }
 module.exports=productCtrl

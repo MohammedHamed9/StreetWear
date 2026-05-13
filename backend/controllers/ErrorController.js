@@ -4,43 +4,33 @@ module.exports=(err,req,res,next)=>{
     if(err.name==="CastError"){
         err.message=`INVALID ${err.path}:${err.value} !`
     }
-    /*if (err.name === 'ValidationError') {
-        const messages = Object.values(err.errors).map(el => el.message);
-        err.message = `Invalid data: ${messages.join(' & ')}`;
-        err.statusCode = 400;
-    }*/
     if(process.env.NODE_ENV==='development')
         return sendDev(err,res);
     else if (process.env.NODE_ENV==='production')
         return sendProd(err,res);
 }
 const sendDev=(err,res)=>{
-    if(err.errors){
-        return res.status(err.statusCode).json({
+    console.error('ERROR 💥', err);
+    return res.status(err.statusCode).json({
             success: false,
             message: err.message,
-            errors: err.errors,
+            errors: err.errors||null,
             stack: err.stack,
         })
-    }
-    return res.status(err.statusCode).json({
-        status:err.status, 
-        //Error:err,
-        message:err.message,
-        stack:err.stack,
-    })
 }
 const sendProd=(err,res)=>{
-    if(err.errors){
+    console.error('ERROR 💥', err);
+if(err.isOperational){
         return res.status(err.statusCode).json({
             success: false,
             message: err.message,
-            errors: err.errors,
+            errors: err.errors||null,
         })
     }
     return res.status(err.statusCode).json({
         status:err.status,
-        message:err.message,
+        message:'something went wrong !',
 
     })
+
 }

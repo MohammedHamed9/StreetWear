@@ -1,6 +1,7 @@
 const Cart=require("../models/CartModel");
 const Product=require("../models/ProductModel");
 const appError = require("../utils/appError");
+const catchAsync = require("./catchAsync");
 async function getCart(userId,guestId){
     if(userId)
     return await Cart.findOne({user:userId});
@@ -9,8 +10,7 @@ async function getCart(userId,guestId){
 return null
 }
 const cartCtrl={
-    addToCart:async (req,res,next)=>{
-        try{
+    addToCart: catchAsync(async (req,res,next)=>{
            const {productId,userId,guestId,size,color,quantity}=req.body
            const product=await Product.findOne({
             _id:productId,
@@ -82,20 +82,12 @@ const cartCtrl={
                 cart:NewCart
             });
            }
-           
-        }catch(error){
-            console.log(error);
-            next(new appError(error));
-        }
-    },
-    updateProductQuantity:async (req,res,next)=>{
-        try{
+    }),
+    updateProductQuantity: catchAsync(async (req,res,next)=>{
             const {productId,quantity,size,color,userId,guestId}=req.body
             const cart=await getCart(userId,guestId)
             if(!cart){
-            return res.status(404).json({
-                message:"This Cart nout found!",
-            }); 
+            return next(new appError("This Cart nout found!",404));
             }
              const product=await Product.findById(productId);
              if(!product){
@@ -119,25 +111,16 @@ const cartCtrl={
                 cart
             });
         }else{
-                return res.status(404).json({
-                    message:"this product not exits in the cart"
-                })
+                return next(new appError("this product not exits in the cart",404));
             }
-        }catch(error){
-            console.log(error);
-            next(new appError(error));
-        }
-    },
-    RemoveProduct:async (req,res,next)=>{
-        try{
+
+    }),
+    RemoveProduct: catchAsync (async (req,res,next)=>{
             const {productId,size,color,userId,guestId}=req.body
             
              const cart=await getCart(userId,guestId)
             if(!cart){
-            return res.status(404).json({
-                message:"This Cart nout found!",
-            }); 
-            }
+            return next(new appError("This Cart nout found!",404));
             const productIndex=cart.products.findIndex((product)=>
             product.productId==productId&&
             product.size===size&&
@@ -153,17 +136,10 @@ const cartCtrl={
                     cart
                 });
             }else{
-                return res.status(404).json({
-                    message:"this product not exits in the cart"
-                })
+                return next(new appError("this product not exits in the cart",404));
             }
-        }catch(error){
-            console.log(error);
-            next(new appError(error));
-        }
-    },
-    getCart:async (req,res,next)=>{
-        try{
+    }}),
+    getCart: catchAsync(async (req,res,next)=>{
         const{userId,guestId}=req.query;
         const cart=await getCart(userId,guestId)
             if(!cart){
@@ -175,13 +151,8 @@ const cartCtrl={
                 cart
             });
             }
-        }catch(error){
-            console.log(error);
-            next(new appError(error));
-        }
-    },
-    mergeCarts:async(req,res,next)=>{
-        try{
+    }),
+    mergeCarts: catchAsync(async(req,res,next)=>{
             //convert from guest to user when the user Login 
             const{guestId}=req.body;// "guestId": "1776344024937",
             const guestCart=await Cart.findOne({guestId})
@@ -229,12 +200,7 @@ const cartCtrl={
                    message:"Guest Cart not found "
                 })    
             }
-        }
-        catch(error){
-            console.log(error);
-            next(new appError('somthing went wrong!',500));
-        }
-    }
+    })
 }
 module.exports=cartCtrl
 /*

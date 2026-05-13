@@ -1,35 +1,27 @@
 const slugify=require("slugify")
 const Category=require("../models/CategoryModel");
 const appError = require("../utils/appError");
+const catchAsync = require("./catchAsync");
 const categoryCtrl={
-    createCategory:async (req,res,next)=>{
-        try{
+    createCategory: catchAsync(async (req,res,next)=>{
             const {name,type}=req.body;
             const admin_created_id=req.user.id;
-            
             const slug=slugify(name);
             const category=await Category.create({name,slug,type,admin_created_id});
             return res.status(201).json({
                 message:"the category is created successfully✅",
                 category
             });
-        }catch(error){
-            console.log(error);
-            next(new appError(error));
-        }
-    },
-    updateCategory:async (req,res,next)=>{
-        try{
+    }),
+    updateCategory: catchAsync(async (req,res,next)=>{
              const c = await Category.findById(req.params.id);
             if(!c){
                 return next(new appError('the category is not exist!',404));
             }
-
             const admin_update_id=req.user._id;
             req.body.admin_update_id=admin_update_id;
             if(req.body.name)
             req.body.slug=slugify(req.body.name);
-
             const category=await Category.findByIdAndUpdate({_id:req.params.id},req.body,{
                 new:true,
                 runValidators:true
@@ -38,13 +30,8 @@ const categoryCtrl={
                 message:"the category is updated successfully✅",
                 category
             });
-        }catch(error){
-            console.log(error);
-            next(new appError(error));
-        }
-    },
-    getCategory:async (req,res,next)=>{
-        try{
+    }),
+    getCategory: catchAsync(async (req,res,next)=>{
             let fields="-__v"
             if(req.query.fields)
                 fields=req.query.fields.split(",").join(" ")
@@ -52,37 +39,28 @@ const categoryCtrl={
             if(!category){
             return next(new appError('this category is not exist!',404));
             }
-            
             return res.status(200).json({
                 category
             });
-        }catch(error){
-            console.log(error);
-            next(new appError(error));
-        }
-    },
-     getAllCategories:async (req,res,next)=>{
-        try{
+    }),
+     getAllCategories: catchAsync(async (req,res,next)=>{
             const page=parseInt(req.query.page,10)||1
             const limit=parseInt(req.query.limit,10)||10
             const skip=(page-1)*limit
-             let sortBy="createdAt"
+            let sortBy="createdAt"
             if(req.query.sort)
                sortBy=req.query.sort
-             let fields="-__v"
+            let fields="-__v"
             if(req.query.fields)
                 fields=req.query.fields.split(",").join(" ");
-
             const categories=await Category.find({status:true})
             .select(fields)
             .sort(sortBy)
             .skip(skip)
             .limit(limit)
-
             const totalCategories=await Category.countDocuments(categories);
             const hasPrev=page>1;
             const hasNext=page*limit<totalCategories
-
              return res.status(200).json({
                 data:categories,
                 paginate:{
@@ -92,23 +70,12 @@ const categoryCtrl={
                     hasNext,
                 }
             })
-        }catch(error){
-            console.log(error);
-            next(new appError(error));
-        }
-    },
-    deleteCtegory:async(req,res,next)=>{
-        try{
+    }),
+    deleteCtegory: catchAsync(async(req,res,next)=>{
             const filter=req.body.filter;
             await Category.deleteMany({_id: {$in:filter }})
-
             res.status(204).json({
                 message:"done"});
-        }
-        catch(error){
-            console.log(error);
-            next(new appError('somthing went wrong!',500));
-        }
-    }
+    })
 }
 module.exports=categoryCtrl;
