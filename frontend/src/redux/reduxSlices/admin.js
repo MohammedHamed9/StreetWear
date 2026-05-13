@@ -1,12 +1,12 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import { toast } from "sonner";
-const URL='http://localhost:3000'
-const VITE_API_URL='https://street-wear-ten.vercel.app'
+const VITE_API_URL=import.meta.env.VITE_API_URL
+
 export const createUser=createAsyncThunk('admin/createUser',
     async({name,email,password,role},{rejectWithValue})=>{
         try{
-            const res=await axios.post(`${URL}/streetwear/user/create-user`,
+            const res=await axios.post(`${VITE_API_URL}/streetwear/user/create-user`,
                 {name,email,password,role},{
                     headers:{
                         Authorization:`Bearer ${localStorage.getItem("userToken")}`
@@ -22,7 +22,7 @@ export const createUser=createAsyncThunk('admin/createUser',
 export const updateUser=createAsyncThunk('admin/updateUser',
     async({id,userData},{rejectWithValue})=>{
         try{
-            const res=await axios.patch(`${URL}/streetwear/user/update-user/${id}`,
+            const res=await axios.patch(`${VITE_API_URL}/streetwear/user/update-user/${id}`,
              userData,{
                     headers:{
                         Authorization:`Bearer ${localStorage.getItem("userToken")}`
@@ -91,7 +91,7 @@ export const deleteUser=createAsyncThunk('admin/deleteUser',
 export const getAllOrders=createAsyncThunk('admin/getAllOrders',
     async(_,{rejectWithValue})=>{
         try{
-            const res=await axios.get(`${URL}/streetwear/user/get-orders`,
+            const res=await axios.get(`${VITE_API_URL}/streetwear/user/get-orders`,
             {
                     headers:{
                         Authorization:`Bearer ${localStorage.getItem("userToken")}`
@@ -107,7 +107,7 @@ export const getAllOrders=createAsyncThunk('admin/getAllOrders',
 export const getOrderDetails=createAsyncThunk('admin/getOrderDetails',
     async(id,{rejectWithValue})=>{
         try{
-            const res=await axios.get(`${URL}/streetwear/user/get-order/${id}`,
+            const res=await axios.get(`${VITE_API_URL}/streetwear/user/get-order/${id}`,
             {
                     headers:{
                         Authorization:`Bearer ${localStorage.getItem("userToken")}`
@@ -123,7 +123,7 @@ export const getOrderDetails=createAsyncThunk('admin/getOrderDetails',
 export const updateOrder=createAsyncThunk('admin/updateOrder',
     async({id,orderData},{rejectWithValue})=>{
         try{
-            const res=await axios.patch(`${URL}/streetwear/user/update-order/${id}`,
+            const res=await axios.patch(`${VITE_API_URL}/streetwear/user/update-order/${id}`,
              orderData,{
                     headers:{
                         Authorization:`Bearer ${localStorage.getItem("userToken")}`
@@ -139,7 +139,7 @@ export const updateOrder=createAsyncThunk('admin/updateOrder',
 export const deleteOrder=createAsyncThunk('admin/deleteOrder',
     async(id,{rejectWithValue})=>{
         try{
-            const res=await axios.delete(`${URL}/streetwear/user/delete-order/${id}`,
+            const res=await axios.delete(`${VITE_API_URL}/streetwear/user/delete-order/${id}`,
             {
                     headers:{
                         Authorization:`Bearer ${localStorage.getItem("userToken")}`

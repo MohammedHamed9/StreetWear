@@ -1,7 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
-const URL='http://localhost:3000'
-const VITE_API_URL='https://street-wear-ten.vercel.app'
+const VITE_API_URL=import.meta.env.VITE_API_URL
 
 export const createCheckout=createAsyncThunk('checkout/createCheckout',
     async({checkoutItems,shippingAddress,paymentMethod,totalPrice}

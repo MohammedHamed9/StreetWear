@@ -52,7 +52,8 @@ const ProductSchema=new mongoose.Schema({
     },
     gender:{
         type:String,
-        enum:["Men","Women","Unisex"]
+        enum:["Men","Women","Unisex"],
+        defauld:"Unisex"
     },
     images:{
         type:[{
@@ -91,13 +92,13 @@ const ProductSchema=new mongoose.Schema({
         type:String,
         trim:true
     },
-    dimenstions:{
-        length:String,
-        width:String,
-        height:String
+    dimensions:{
+        length:Number,
+        width:Number,
+        height:Number
     },
     weight:{
-        type:String,
+        type:Number,
         trim:true
     },
     fit:{

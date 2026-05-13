@@ -32,7 +32,6 @@ const cartCtrl={
         }       
 
         const cart =await getCart(userId,guestId);
-        console.log(cart);
         if(cart!=null){
             
         const productIndex=cart.products.findIndex((product)=>

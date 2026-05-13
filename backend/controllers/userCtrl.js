@@ -20,15 +20,13 @@ const createCooki=(token,res)=>{
 const usetCtrl={
     resgister:async(req,res,next)=>{
         try{
+            console.log(req.body);
             const {name,email,password}=req.body;
-            if(!email||!password)
-             return  next(new appError("Please enter your email and password", 400));
-
             const oldUser=await User.findOne({email});
             if(oldUser)
                 return next(new appError("User already exists", 400));
 
-            const user=await User.create({name,email,password});
+            const user=await User.create(req.body);
             const token=signToken(user.id);
             return res.status(201).json({
                 message:'Welcome to out store',
@@ -36,7 +34,8 @@ const usetCtrl={
                     id:user.id,
                     name:user.name,
                     email:user.email,
-                    role:user.role
+                    role:user.role,
+                    addresses:user.addresses
                 },
                 token
             });
@@ -49,16 +48,21 @@ const usetCtrl={
     login:async(req,res,next)=>{
         try{            
             const{email,password}=req.body
-             if(!email||!password)
-             return  next(new appError("Please enter your email and password", 400));
-             const oldUser=await User.findOne({email});
+
+            const oldUser=await User.findOne({email})
             if(!oldUser||!await oldUser.matchPasswords(password,oldUser.password))
              return  next(new appError("Invalid Credentails", 400));
             const token=signToken(oldUser.id);
             createCooki(token,res);
+            let user={
+            id:oldUser._id,
+            name:oldUser.name,
+            email:oldUser.email,
+            role:oldUser.role
+            }
             return res.status(200).json({
                 message:`welcome ${oldUser.name}`,
-                user:oldUser,
+                user,
                 token
             });
         }catch(err){
@@ -87,12 +91,10 @@ const usetCtrl={
             return next(new appError("something went wrong!",500));
         }
     },
-    updateMe:async(req,res,next)=>{
+    updateMe:async(req,res,next)=>{ 
         try{
-            if(req.body.password)
-          return(next (new appError(`This route is not for password updates. Please use :
-         ${req.protocol}://${req.get('host')}/streetwear/user/updatePassword`,400)));
-        if(req.file){
+            console.log(req.body);
+         if(req.file){
             let result=await uploadToCloudinary(req.file.buffer,"users");
             req.body.avatar=result.url;
         }
@@ -101,7 +103,7 @@ const usetCtrl={
             runValidators:true
         });
             return res.status(200).json({
-                message:`welcome `,
+                message:`your data is successfully updated.`,
                 user
             });
         }catch(err){
@@ -163,7 +165,7 @@ const usetCtrl={
     },
     updatePassword:async(req,res,next)=>{
        try{
-        const oldPassword=req.body.oldPassword;
+        const oldPassword=req.body.password;
         const newPassword=req.body.newPassword;
         
         if(!await req.user.matchPasswords(oldPassword,req.user.password)){

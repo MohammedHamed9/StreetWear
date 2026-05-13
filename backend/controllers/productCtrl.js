@@ -47,9 +47,7 @@ const productCtrl={
                     images=UrlResults
             //const result=await uploadToCloudinary(req.file.buffer,"users");
         }
-        if(req.body.variants)
-            req.body.variants=JSON.parse( req.body.variants)
-       
+
         const product=await Product.create({
                 name,
                 description,
@@ -87,15 +85,6 @@ const productCtrl={
                 return next(new appError('The Product is not exist!',404));
             }
             
-            if(req.body.images){
-                req.body.images=JSON.parse(req.body.images);
-            }
-            if (req.body.variants){
-                    req.body.variants = JSON.parse(req.body.variants);
-            }   
-            if (req.body.tags){
-                req.body.tags = JSON.parse(req.body.tags);
-            }
             req.body.admin_update_id=req.user._id;
 
         if (req.body.category) {
@@ -112,10 +101,12 @@ const productCtrl={
             req.body.brand = b._id;
         }
       if(req.files&&req.files.length>0){
+            req.body.images=[];
             const uploadedPromises=req.files.map(async(el)=>
                 await uploadToCloudinary(el.buffer,'products'))
 
                 const result=await Promise.all(uploadedPromises);
+                console.log(result)
 
                 const UrlResults=result.map((el)=>(
                 req.body.images.push( {url:el.secure_url,altText:""})
@@ -137,41 +128,31 @@ const productCtrl={
     },
     getAllProducts:async(req,res,next)=>{
         try{
-        const page=parseInt(req.query.page,10)||1;
-        const limit=parseInt(req.query.limit,10)||100;
-        const skip=(page-1)*limit
-
-        let {collection, size, color, gender, minPrice, maxPrice, sortBy, 
-        search, category, material, brand
-        } =req.query
-        let query={}
-    
-        if(collection &&collection.toLowerCase()!='all'){
-            query.collection=collection.trim()
+     let { sortBy,page,limit,skip,fields, collections, gender, minPrice, maxPrice, 
+        search, category, brand,material,size,color
+        } =req.query;
+    let query={}
+    if(collections &&collections.toLowerCase()!='all'){
+        query.collections=collections 
         }
-        if(gender){
-            query.gender=gender.trim()
-        }
-        if(material)
-            query.material=material.trim()
-
-        if (category) {
-            const c = await Category.find({$or:[
-            {name:category.trim()},
-            {type:category.trim()}]});
-            if (!c) return next(new appError("Category not found", 404));
-            if(c.length==1)
-            query.category = c[0]._id; 
-            else{
+  
+    if (category) {
+        const c = await Category.find({$or:[
+                {name:category},
+                {type:category}]});
+        if (c.length==0) return next (new appError("Category not found", 404));
+                if(c.length==1)
+                query.category = c[0]._id; 
+                else{
                 let categories=[]
                 categories=c.map((el,index)=>categories[index]=el._id);
-               query.category={$in:categories}
+                query.category={$in:categories}
+                }
             }
-        }
         if (brand) {
-            brand=brand.trim().includes(",")?brand.split(','):brand
+            brand=brand.includes(",")?brand.split(','):brand
             const b = await Brand.find({ name:{$in: brand }});
-            if (!b) return next(new appError("Brand not found", 404));
+            if (b.length==0) return next(new appError("Brand not found", 404));
             if(b.length==1)
                 query.brand = b[0]._id;
             else{
@@ -180,58 +161,30 @@ const productCtrl={
                 query.brand={$in:brands}
             }
         }
-
-        //SORT
-        if(sortBy){
-            switch(sortBy.trim()){
-                case "priceAsc":
-                   sortBy={price:1}
-                   break;
-                case "priceDesc":
-                    sortBy={price:-1}
-                    break;
-                case "popularity":
-                    sortBy={rating:-1}
-                    break;
-                default:
-                sortBy={createdAt:-1}
-            }
-  
-        }
-        //SELECT FIELDS
-         let fields=""
-        if(req.query.fields){
-            fields=req.query.fields.trim().split(",").join(" ")
-        }else{
-            fields=("-__v");
-        }
-
-        //PRICE
         if(minPrice||maxPrice){
-            query.price={}
+        query.price={}
             if(minPrice) 
                 query.price.gte=Number(minPrice);
              if(maxPrice) 
                 query.price.lte=Number(maxPrice);
-             queryStr=JSON.stringify(query.price).replace(/\b(gte|gt|lte|lt)\b/g,match=> `$${match}`);
+            let queryStr=JSON.stringify(query.price).replace(/\b(gte|gt|lte|lt)\b/g,match=> `$${match}`);
              query.price=JSON.parse(queryStr)
         }
-        //SEARCH
-        if(search){
+    if(search){
             query.$or=[
                 { name:{$regex:search.trim(),$options:'i'}},
                 { description:{$regex:search.trim(),$options:'i'}}
             ]
         }
-        if(size){
-            size=size.trim().includes(",")?size.split(","):size
+    if(size){
+            size=size.includes(",")?size.split(","):size
             query["variants.size"]={$in:size}
         }
-        if(color){
-            color=color.trim().includes(",")?color.split(","):color
-            query["variants.color"]={$in:color}
-        }
-            const products=await Product.find(query)
+    if(color){
+                color=color.includes(",")?color.split(","):color
+                query["variants.color"]={$in:color}
+            }
+        const products=await Product.find(query)
             .populate("category","name type")
             .populate("brand","name")
             .select(fields)

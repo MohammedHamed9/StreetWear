@@ -6,7 +6,6 @@ const adminCtrl={
     createUser:async (req,res,next)=>{
         try{
             let {name,email,password,role}=req.body;
-            if(!role)role="Customer";
             const user=await User.findOne({email});
             if(user)
             return res.status(400).json({

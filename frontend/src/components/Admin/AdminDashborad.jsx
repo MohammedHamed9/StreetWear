@@ -52,7 +52,7 @@ const AdminDashborad = () => {
                 ):(
                 <p className="text-2xl ">{products&&products.length}</p>
                 )}
-                <Link className="text-blue-500 hover:underline">Manage Products</Link>
+                <Link to={"/admin/products"} className="text-blue-500 hover:underline" >Manage Products</Link>
                 </div>
             </div>
 

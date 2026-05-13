@@ -2,6 +2,31 @@ const mongoose=require("mongoose");
 const emailValidator=require("email-validator")
 const bcrypt=require("bcryptjs")
 const crypto=require("crypto")
+const addressSchema=mongoose.Schema({
+   alias:{
+    type:String,
+    tirm:true,
+},
+  city:{
+    type:String,
+    tirm:true,
+  },
+  area: { 
+    type: String, 
+    trim: true 
+  },
+  street: { 
+    type: String, 
+  },
+  building: Number,
+  floor: Number,
+  apartment: Number,
+  postalCode: String,
+  isDefault: { 
+    type: Boolean, 
+    default: false 
+  }
+})
 const UserSchema=new mongoose.Schema({
     name:{
         type:String,
@@ -27,7 +52,7 @@ const UserSchema=new mongoose.Schema({
         minLength:8
     },
     passwordChanedAt:Date,
-     phone:{
+    phone:{
         type:String,
         trim:true,
     },
@@ -50,7 +75,8 @@ const UserSchema=new mongoose.Schema({
         default:""
     },
     passwordRestToken:String,
-    passwordRestExpires:Date
+    passwordRestExpires:Date,
+    addresses:[addressSchema]
 },{timestamps:true});
 
 UserSchema.pre("save",async function(next) {

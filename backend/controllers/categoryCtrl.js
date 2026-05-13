@@ -6,8 +6,7 @@ const categoryCtrl={
         try{
             const {name,type}=req.body;
             const admin_created_id=req.user.id;
-            if(!name||!type)
-                return next(new appError("Please fill all the data!",400))
+            
             const slug=slugify(name);
             const category=await Category.create({name,slug,type,admin_created_id});
             return res.status(201).json({

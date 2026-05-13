@@ -11,8 +11,8 @@ import {useDispatch, useSelector} from "react-redux"
 import { useEffect, useState } from "react"
 import { fetchProductsWithFilters } from "../redux/reduxSlices/product"
 import axios from "axios"
-const URL='http://localhost:3000'
-const VITE_API_URL='https://street-wear-ten.vercel.app'
+const VITE_API_URL=import.meta.env.VITE_API_URL
+
 const Home = () => {
     const dipatch=useDispatch()
     const{products,loading,error}=useSelector((state)=>state.product)

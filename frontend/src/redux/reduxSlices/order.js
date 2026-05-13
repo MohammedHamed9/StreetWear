@@ -1,17 +1,16 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
-const URL='http://localhost:3000'
-const VITE_API_URL='https://street-wear-ten.vercel.app'
+const VITE_API_URL=import.meta.env.VITE_API_URL
 
 export const fetchOrders=createAsyncThunk('order/fetchUserOrders',
     async(_,{rejectWithValue})=>{
         try{
-            console.log("we enter")
         const res=await axios.get(`${VITE_API_URL}/streetwear/order/my-orders`,{
             headers:{
                 Authorization:`Bearer ${localStorage.getItem("userToken")}`
             }
         });
+        console.log(res.data)
         return res.data.orders;
         }
         catch(error){

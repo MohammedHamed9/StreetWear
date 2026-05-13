@@ -1,8 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import { toast } from "sonner";
-const URL='http://localhost:3000'
-const VITE_API_URL='https://street-wear-ten.vercel.app'
+const VITE_API_URL=import.meta.env.VITE_API_URL
 
 export const createProduct=createAsyncThunk('admin/createProduct',
     async({

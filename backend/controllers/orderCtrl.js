@@ -9,6 +9,7 @@ const orderCtrl={
             if(!orders||orders.length==0)
             return res.status(200).json({
                 message:"You have no orders!",
+                orders:[]
             });
             return res.status(200).json({
                 orders
