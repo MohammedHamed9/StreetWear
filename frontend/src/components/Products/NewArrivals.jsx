@@ -4,7 +4,7 @@ import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import {Link} from "react-router-dom"
 
 const URL='http://localhost:3000'
-const VITE_API_URL='https://street-wear-ten.vercel.app'
+const VITE_API_URL='https://street-wear-five.vercel.app/'
 
 const NewArrivals = () => {
   const scrollRef=useRef();
