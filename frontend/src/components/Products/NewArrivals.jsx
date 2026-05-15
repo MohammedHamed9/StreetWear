@@ -14,7 +14,7 @@ const NewArrivals = () => {
   useEffect(()=>{
     async function fetchNewArrivals(){
       try{
-        const res=await axios.get(`https://street-wear-five.vercel.app/streetwear/product/new-arrivals`);
+        const res=await axios.get(`https://street-wear-five.vercel.app//streetwear/product/new-arrivals`);
         setNewArrivals(res.data.newArrivals);
       }
       catch(error){
