@@ -100,9 +100,8 @@ const createProductSchema=Joi.object({
         'string.min': 'product fit should have at least 3 characters',
         'any.required': 'you have to provide a product fit'
     }),
-    rating:Joi.number().integer().min(0).max(5).messages({
+    rating:Joi.number().min(0).max(5).messages({
         'number.base': 'product rating must be a number',
-        'number.integer': 'product rating should be an integer value',
         'number.min':'product rating cant be less than 0',
         'number.max':'product rating cant exceed 5',
     }),
@@ -228,9 +227,8 @@ const updateProductSchema=Joi.object({
         'string.empty': 'product fit cannot be empty',
         'string.min': 'product fit should have at least 3 characters',
     }),
-    rating:Joi.number().integer().min(0).max(5).messages({
+    rating:Joi.number().min(0).max(5).messages({
         'number.base': 'product rating must be a number',
-        'number.integer': 'product rating should be an integer value',
         'number.min':'product rating cant be less than 0',
         'number.max':'product rating cant exceed 5',
     }),

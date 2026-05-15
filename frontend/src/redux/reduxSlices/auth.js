@@ -23,12 +23,13 @@ export const loginUser=createAsyncThunk('auth/loginUser',
    const res=await axios.post(`${VITE_API_URL}/streetwear/user/login`,userData);
         localStorage.setItem("userInfo",JSON.stringify(res.data.user));
         localStorage.setItem("userToken",res.data.token);
-        toast.success("Login Successfully✅")
+        toast.success(res.data.message)
         return res.data;
     }
     catch(error){
+        console.log(error.response.data);
         toast.error(error.response.data.message)
-        return rejectWithValue(error.response.data.message);
+        return rejectWithValue(error.response.data);
     }
 
 })
@@ -39,7 +40,6 @@ export const registerUser=createAsyncThunk('auth/registerUser',
         localStorage.setItem("userInfo",JSON.stringify(res.data.user))
         localStorage.setItem("userToken",res.data.token);
         toast.success("Register successfully✅")
-        console.log(res.data);
         return res.data;
         }
         catch(error){

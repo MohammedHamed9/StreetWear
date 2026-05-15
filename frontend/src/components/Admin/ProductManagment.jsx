@@ -74,11 +74,14 @@ const ProductManagment = () => {
                         <div className="flex items-center">
                           <Link to={`/admin/products/${product._id}/edit`}
                          className="py-1.5 px-2 rounded text-white
-                         bg-yellow-500 hover:bg-yellow-600 mr-2">Edit</Link>
+                         bg-yellow-500 hover:bg-yellow-600 mr-2">
+                          {loading ? "Editing..." : "Edit"}</Link>
                         
                         <button onClick={()=>handelDeleteProduct(product._id)}
                          className="py-1 px-2 rounded text-white
-                         bg-red-500 hover:bg-red-600">Delete</button>
+                         bg-red-500 hover:bg-red-600">
+                          {loading ? "Deleting..." : "Delete"}
+                        </button>
                         </div>
                     </td>
                 </tr>

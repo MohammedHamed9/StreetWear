@@ -2,63 +2,35 @@ import { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { createCheckout, finalizeCheckOut,payCheckout } from "../../redux/reduxSlices/checkout";
+import { useForm } from "react-hook-form";
+import { clearCart } from "../../redux/reduxSlices/cart";
 
-const cartProducts={
-    products:[{
-        productId:1,
-        name:"T-shirt",
-        size:"M",
-        color:"red",
-        quantity:1,
-        price:255,
-        image:"https://picsum.photos/200?random=1"
-    },
-    {
-        productId:2,
-        name:"Jeans",
-        size:"L",
-        color:"Blue",
-        quantity:1,
-        price:150,
-        image:"https://picsum.photos/200?random=2"
-    },
-],
-totalPrice:1450
-}
 const ChcekOut = () => {
   const navigate=useNavigate()
-    const [shippingAddress, setShippingAddress] = useState({
-        firstName: "",
-        lastName: "",
-        address: "",
-        city: "",
-        postalCode: "",
-        country: "",
-        phone: "",
-        });
-    const [checkId,setCheckId]=useState("123");
+
+      const {register,handleSubmit,formState}=useForm()
+      const errors=formState.errors;
+    const [checkId,setCheckId]=useState("");
     const {cart,loading,error}=useSelector(state=>state.cart);
     const {user,guestId}=useSelector(state=>state.auth);
     const dispatch=useDispatch();
   useEffect(()=>{
-
     if(!cart||!cart.products||cart.products.length==0)
       navigate('/');
   },[cart,navigate]);
 
-  async function handelCreateCheckout(e){
-    e.preventDefault()
-
+  async function handelCreateCheckout(data){
+    console.log(errors);
     if(cart&&cart.products.length>0){
       try{
     const res= 
     await dispatch(createCheckout({
       checkoutItems:cart.products,
-      shippingAddress,
+      shippingAddress:data,
       paymentMethod:'Paypal',
       totalPrice:cart.totalPrice}));
       if(res.payload&&res.payload.checkout._id){
-      setCheckId(res.payload?.checkout._id); 
+      setCheckId(res.payload.checkout._id); 
       }
     }
     catch(error){
@@ -69,7 +41,7 @@ const ChcekOut = () => {
 async function handelPaymentSuccess(details){
   try{
     const res=await dispatch(payCheckout(
-      {paymentDetails:details,paymentStatus:'paid',id:checkId}))
+      {paymentDetails:{details},paymentStatus:'paid',id:checkId}))
       if(res.payload.status==200){
       const secondResponse=await dispatch(finalizeCheckOut(checkId));
         if(secondResponse.payload.status==200){
@@ -89,11 +61,6 @@ async function handelPaymentSuccess(details){
             <div className="h-4 w-4 bg-black rounded-full animate-bounce [animation-delay:-0.15s]"></div>
             <div className="h-4 w-4 bg-black rounded-full animate-bounce [animation-delay:-0.15s]"></div>
             </div>
-  if(error){
-    return <div className="h-[600px] flex justify-center items-center">
-      <p className="text-center text-xl font-semibold">Error:{error}</p>
-    </div>
-  } 
   if(!cart||!cart.products)
     return <div className="h-[600px] flex justify-center items-center">
      <p className="text-center text-xl font-semibold">Your Cart is Empty.</p> 
@@ -103,95 +70,96 @@ async function handelPaymentSuccess(details){
       {/* LEFT - DIV  */}
       <div className="bg-white"> 
         <h2 className="text-xl  font-medium uppercase mb-4">CheckOut</h2>
-        <form onSubmit={handelCreateCheckout}>
+        
+        <form onSubmit={handleSubmit(handelCreateCheckout)}>
+
         <h3 className="text-lg mb-6">Contact Details</h3>
+
         <div className="mb-4">
         <label className="text-sm block text-gray-700 ">Email</label>
         <input type="email" value={user?.email||""}
          className=" w-full px-2 py-1 rounded-lg border "
         disabled  />
         </div>
+
         <h3 className="mb-4 text-lg ">Delivery</h3>
+
         <div className="flex gap-4 mb-4">
             <div className="w-1/2">
             <label className="text-sm block text-gray-700 ">First Name</label>
-            <input type="text" 
+            <input type="text" name="firstName"
             className=" w-full px-2 py-1 rounded border "
-            value={shippingAddress.firstName}
-            onChange={(e)=>
-                setShippingAddress({...shippingAddress,firstName:e.target.value})}
-             required />
+             required 
+             {...register("firstName", { required:"First name is required",minLength:{ value: 3, message: "First name must be at least 3 characters long" } })}/>
+              {errors.firstName && <p className="text-red-500 text-sm">{errors.firstName.message}</p>}
             </div>
              <div className="w-1/2">
             <label className="text-sm block text-gray-700 ">Last Name</label>
-            <input type="text" 
+            <input type="text" name="lastName"
             className=" w-full px-2 py-1 rounded border"
-            value={shippingAddress.lastName}
-            onChange={(e)=>
-                setShippingAddress({...shippingAddress,lastName:e.target.value})}
-              required/>
+              required
+              {...register("lastName", { required: "Last name is required",minLength:{ value: 3, message: "Last name must be at least 3 characters long" } })}/>
+              {errors.lastName && <p className="text-red-500 text-sm">{errors.lastName.message}</p>}
             </div>
         </div>
         <div className="mb-4">
             <label className="text-sm block text-gray-700 ">Address</label>
-            <input type="text" 
+            <input type="text" name="address"
             className=" w-full px-2 py-1 rounded border "
-            value={shippingAddress.address}
-            onChange={(e)=>
-                setShippingAddress({...shippingAddress,address:e.target.value})}
-              required/>
+              required
+              {...register("address", { required: "Address is required",minLength:{ value: 5, message: "Address must be at least 5 characters long" } })}/>
+              {errors.address && <p className="text-red-500 text-sm">{errors.address.message}</p>}
             </div>
          <div className="flex gap-4 mb-4">
             <div className="w-1/2">
             <label className="text-sm block text-gray-700 ">City</label>
-            <input type="text" 
+            <input type="text" name="city"
             className=" w-full px-2 py-1 rounded border "
-                  value={shippingAddress.city}
-            onChange={(e)=>
-                setShippingAddress({...shippingAddress,city:e.target.value})}
+            {...register("city", { required: "City is required",minLength:{ value: 3, message: "City must be at least 3 characters long" } })}
               required/>
+              {errors.city && <p className="text-red-500 text-sm">{errors.city.message}</p>}
             </div>
              <div className="w-1/2">
             <label className="text-sm block text-gray-700 ">Postal Code</label>
-            <input type="text" 
+            <input type="text" name="postalCode"
             className=" w-full px-2 py-1 rounded border "
-                  value={shippingAddress.postalCode}
-            onChange={(e)=>
-                setShippingAddress({...shippingAddress,postalCode:e.target.value})}
+            {...register("postalCode", { required: "Postal code is required",minLength:{ value: 3, message: "Postal code must be at least 3 characters long" } })}          
               required/>
+              {errors.postalCode && <p className="text-red-500 text-sm">{errors.postalCode.message}</p>}
             </div>
         </div>
       
          <div className="mb-4">
             <label className="text-sm block text-gray-700 ">Country</label>
-            <input type="text" 
+            <input type="text" name="country"
             className=" w-full px-2 py-1 rounded-lg border "
-            value={shippingAddress.country}
-            onChange={(e)=>setShippingAddress({...shippingAddress,country:e.target.value})}
+            {...register("country", { required: "Country is required",minLength:{ value: 3, message: "Country must be at least 3 characters long" } })}
               />
+              {errors.country && <p className="text-red-500 text-sm">{errors.country.message}</p>}
         </div>
          <div className="mb-4">
             <label className="text-sm block text-gray-700 ">Phone</label>
-            <input type="tel" 
+            <input type="tel" name="phone"
             className=" w-full px-2 py-1 rounded-lg border "
-            value={shippingAddress.phone}
-            onChange={(e)=>setShippingAddress({...shippingAddress,phone:e.target.value})}
+            {...register("phone", { required: "Phone is required",minLength:{ value: 10, message: "Phone must be at least 10 characters long" } })}
               />
+              {errors.phone && <p className="text-red-500 text-sm">{errors.phone.message}</p>}
         </div>
            <div className="mt-6">
-           {checkId?( 
-            <button  type="submit" className="w-full bg-black text-white rounded p-3">
+ 
+            <button  type="submit"
+             className="w-full bg-black text-white rounded p-3">
                 Continue to Payment
-             </button>):(<div>
-              <h3>Pay with Paypal</h3>
-              {/* PayPal COMPONENT  */}
-             </div>)}
+             </button>
            </div>
         </form>
-         <button onClick={()=>handelPaymentSuccess("we did pay the checkout")} 
-         className="w-full bg-black text-white rounded p-3 mt-10">
-                Continue to Payment............
-             </button>
+
+        {checkId && (
+          <button onClick={()=>handelPaymentSuccess("we did pay the checkout")} 
+           className="w-full bg-green-500 text-white rounded p-3 mt-10">
+                  Confirm the order
+               </button>
+        )}
       </div>
 
       {/* RIGHT - DIV */}

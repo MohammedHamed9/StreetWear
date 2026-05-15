@@ -3,7 +3,32 @@ import { RiTwitterXLine } from 'react-icons/ri'
 import { TbBrandMeta } from 'react-icons/tb'
 import {FiPhoneCall} from'react-icons/fi'
 import {Link} from 'react-router-dom'
+import { useState } from 'react'
+import axios from "axios";
+import { toast } from "sonner";
+
 const Footer = () => {
+  const [loading, setLoading] = useState(false)
+  const handelSubmit = async (e) => {
+    e.preventDefault()
+  try{
+    setLoading(true)
+      const res=await axios.post(`${import.meta.env.VITE_API_URL}/streetwear/subscriber`,
+        {email:e.target[0].value},
+      {
+        headers:{
+          Authorization:`Bearer ${localStorage.getItem("userToken")}`
+        }
+      })
+      toast.success(res.data.message);
+      e.target[0].value=""
+    }catch(error){
+      toast.error(error.response.data.message || "Something went wrong")
+    } 
+    finally{
+      setLoading(false)
+    } 
+  }
   return (
     <footer>
       <div className=" border-t border-gray-300 py-12 text-center md:text-left">
@@ -13,11 +38,15 @@ const Footer = () => {
           <p className='text-sm text-gray-500 mb-4'>Be the first to hear about new products,
           exclusive events, and online offers.</p>
           <p className='text-sm font-medium  text-gray-600 mb-6' >Sign up and get 10% off on your first oreder.</p>
-          <form className='flex'>
+          <form className='flex' onSubmit={handelSubmit}>
               <input type="email"  placeholder="Enter your email"
               className='p-3 w-full text-sm border-t border-l border-b border-gray-300  rounded-l-md 
               focus:outline-none focus:ring-2 focus:ring-gray-500 transition-all' required/>
-              <button type='submit' className='bg-black text-white text-sm px-2 py-1 rounded-r-md transition-all  '>Subscribe</button>
+              <button type='submit'
+              disabled={loading}
+              className={`${loading?"bg-gray-500":"bg-black"} text-white text-sm px-2 py-1 rounded-r-md transition-all  `}>
+              {loading ? "Subscribing..." : "Subscribe"}
+              </button>
           </form>
         </div>
         <div className=''>

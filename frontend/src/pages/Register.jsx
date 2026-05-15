@@ -76,7 +76,7 @@ const Register = () => {
           className="border w-full p-2 mt-2 rounded focus:outline-black"  />
         </div>
         <button className="w-full px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition">
-          {loading?"Loading...":"Sgin Up"}</button>
+          {loading?"Regitering...":"Sgin Up"}</button>
         <p className="text-sm mt-6">You have an account?
           <Link to={redirectPath?`/login?redirect=checkout`:'/login'} className="text-blue-500"> Login</Link> </p>
       </form>

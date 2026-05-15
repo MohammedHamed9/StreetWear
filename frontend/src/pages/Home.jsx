@@ -5,7 +5,7 @@ import NewArrivals from "../components/Products/NewArrivals"
 import YouMayLike from "../components/Products/ProductGrid"
 import ProductGrid from "../components/Products/ProductGrid"
 import FeaturedCollection from "../components/Products/FeaturedCollection"
-import New from "../components/Products/FeaturedSection"
+import FeaturedSection from "../components/Products/FeaturedSection"
 import ScrollTop from "../ScrollTop"
 import {useDispatch, useSelector} from "react-redux"
 import { useEffect, useState } from "react"
@@ -48,7 +48,7 @@ useEffect(()=>{
       <ProductGrid products={products} loading={loading} error={error}/>
       </div>
       <FeaturedCollection/>
-      <New/>
+      <FeaturedSection/>
     </div>
   )
 }

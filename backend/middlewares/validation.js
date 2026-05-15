@@ -2,7 +2,6 @@ const appError=require("../utils/appError");
 const validate=(schema,property = "body")=>{
     return async (req,res,next)=>{
         try{
-
         const value =await schema.validateAsync(req[property],
             {abortEarly:false,
             stripUnknown:true

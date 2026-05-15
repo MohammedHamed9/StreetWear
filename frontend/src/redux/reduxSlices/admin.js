@@ -13,8 +13,10 @@ export const createUser=createAsyncThunk('admin/createUser',
                     }
                 }
             );
+            toast.success(res.data.message)
             return res.data
         }catch(error){
+            toast.error(error.response.data.message)
             return rejectWithValue(error.response.data)
         }
     }
@@ -29,8 +31,10 @@ export const updateUser=createAsyncThunk('admin/updateUser',
                     }
                 }
             );
+            toast.success(res.data.message)
             return res.data
         }catch(error){
+            toast.error(error.response.data.message)
             return rejectWithValue(error.response.data)
         }
     }
@@ -47,8 +51,10 @@ export const getUser=createAsyncThunk('admin/getUser',
                     params:{fields}
                 }
             );
+            toast.success(res.data.message)
             return res.data
         }catch(error){
+            toast.error(error.response.data.message)
             return rejectWithValue(error.response.data)
         }
     }
@@ -66,6 +72,7 @@ export const getAllUser=createAsyncThunk('admin/getAllUser',
             );
             return res.data
         }catch(error){
+            toast.error(error.response.data.message)
             return rejectWithValue(error.response.data)
         }
     }
@@ -81,8 +88,10 @@ export const deleteUser=createAsyncThunk('admin/deleteUser',
                         Authorization:`Bearer ${localStorage.getItem("userToken")}`
                     },
             });
+            toast.success(res.data.message)
             return res.data
         }catch(error){
+            toast.error(error.response.data.message)
             return rejectWithValue(error.response.data)
         }
     }

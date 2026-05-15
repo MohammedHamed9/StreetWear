@@ -12,6 +12,7 @@ return null
 const cartCtrl={
     addToCart: catchAsync(async (req,res,next)=>{
            const {productId,userId,guestId,size,color,quantity}=req.body
+           console.log({productId,userId,guestId,size,color,quantity})
            const product=await Product.findOne({
             _id:productId,
             variants:{
@@ -117,14 +118,16 @@ const cartCtrl={
     }),
     RemoveProduct: catchAsync (async (req,res,next)=>{
             const {productId,size,color,userId,guestId}=req.body
-            
+            console.log({productId,size,color,userId,guestId})
              const cart=await getCart(userId,guestId)
             if(!cart){
             return next(new appError("This Cart nout found!",404));
+            }
             const productIndex=cart.products.findIndex((product)=>
             product.productId==productId&&
             product.size===size&&
             product.color===color);
+            console.log(productIndex)
             if(productIndex!=-1){
                 cart.products.splice(productIndex,1);
                 const totalPrice=cart.products.reduce(
@@ -132,13 +135,14 @@ const cartCtrl={
                 acc+(item.price*item.quantity),0);
                 cart.totalPrice=totalPrice;
                 await cart.save()
+                
                 return res.status(203).json({
                     cart
                 });
             }else{
                 return next(new appError("this product not exits in the cart",404));
             }
-    }}),
+    }),
     getCart: catchAsync(async (req,res,next)=>{
         const{userId,guestId}=req.query;
         const cart=await getCart(userId,guestId)

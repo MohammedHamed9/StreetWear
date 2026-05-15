@@ -3,31 +3,33 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchProductDetails } from "../../redux/reduxSlices/product";
 import { useParams } from "react-router-dom";
 import { updateProduct } from "../../redux/reduxSlices/adminProdcuts";
+import{useForm}from "react-hook-form"
 
 export default function EditProduct() {
-const [productData, setProductData] = useState(null);
-const {productId}=useParams();
-const {selectedProduct,loading,error}=
+  const [productData, setProductData] = useState(null);
+  const {productId}=useParams();
+  const [formErrors,setFormErrors]=useState({});
+  const {selectedProduct,loading,error}=
   useSelector(state=>state.product);
   const dispatch=useDispatch();
+
   useEffect(()=>{
       dispatch(fetchProductDetails(productId));
   },[dispatch,productId]);
+
 useEffect(() => {
     if (selectedProduct) {
         setProductData(selectedProduct);
     }
 }, [selectedProduct]);
+
 function handelChange(e){
   const {name,value}=e.target
   setProductData({...productData,[name]:value});
-    
-
 }
 
 function handelAddNewVariants(e){
     e.preventDefault()
-
   setProductData({
     ...productData,
     variants:[...productData.variants,{color:"",size:"",stock:""}]
@@ -36,10 +38,16 @@ function handelAddNewVariants(e){
 
 }
 function handelVariantsChange(index,feild,value){
-  const oldvariants=[...productData.variants]
-  oldvariants[index][feild]=feild=='stock'?Number(value):value.trim();
+  let oldvariants=[...productData.variants]
+  //oldvariants[index][feild]=feild=='stock'?Number(value):value.trim();
+
+  oldvariants[index] = { 
+    ...oldvariants[index], 
+    [feild]: feild === 'stock' ? Number(value) : value 
+  };
+      console.log(oldvariants[index]);
+
   setProductData({...productData,variants:oldvariants})
-  
 
 }
 function handelRemoveVariant(e,index){
@@ -59,25 +67,22 @@ function handelImageUpload(e){
 async function handelSubmit(e){
   e.preventDefault()
   const formDate=new FormData()
-  formDate.append("name",productData.name)
-  formDate.append("admin_created_id",productData.admin_created_id)
-  formDate.append("collections",productData.collections)
-  formDate.append("description",productData.description)
-  formDate.append("discountPrice",productData.discountPrice)
-  formDate.append("price",productData.price)
-  formDate.append("fit",productData.fit)
-  formDate.append("gender",productData.gender)
-  formDate.append("isFeatured",productData.isFeatured)
-  formDate.append("isPublished",productData.isPublished)
-  formDate.append("material",productData.material)
-  formDate.append("numReviews",productData.numReviews)
-  formDate.append("rating",productData.rating)
-  formDate.append("sku",productData.sku)
-  formDate.append("variants",JSON.stringify(productData.variants));
-  formDate.append("category",JSON.stringify(productData.category));
-  formDate.append("brand",JSON.stringify(productData.brand));
-  formDate.append("tags",JSON.stringify(productData.tags));
-  formDate.append("images",JSON.stringify(productData.images));
+const fieldsToSend = [
+    "name", "admin_created_id", "collections", "description", 
+    "discountPrice", "price", "fit", "gender", "isFeatured", 
+    "isPublished", "material", "numReviews", "rating", "sku"
+  ];
+  fieldsToSend.forEach(field => {
+    if (productData[field] !== undefined && productData[field] !== null) {
+      formDate.append(field, productData[field]);
+    }
+  });
+  const jsonFields = ["variants", "category", "brand", "tags", "images"];
+  jsonFields.forEach(field => {
+    if (productData[field]) {
+      formDate.append(field, JSON.stringify(productData[field]));
+    }
+  });
   if(productData.newImages){  productData.newImages.forEach(image => {
     if(image instanceof File)
     formDate.append('images',image);
@@ -88,6 +93,13 @@ async function handelSubmit(e){
 
   }catch(error){
     console.log(error);
+    const backendErrors={};
+    if(error.errors){
+      error.errors.forEach((err)=>{
+        backendErrors[err.field]=err.message;
+      })
+      setFormErrors(backendErrors);
+    }
   }
 }
 if(error)
@@ -114,6 +126,7 @@ if(error)
         value={productData.name} 
         onChange={handelChange}
         className="w-full rounded-md border border-gray-300 p-2 " required />
+        {formErrors.name && <p className="text-red-500 text-sm">{formErrors.name}</p>}
       </div>
 
       <div className="mb-6">
@@ -124,6 +137,7 @@ if(error)
         className="border border-gray-300 p-2 w-full rounded-md"
          rows={4} 
          required />
+        {formErrors.description && <p className="text-red-500 text-sm">{formErrors.description}</p>}
       </div>
 
       <div className="mb-6">
@@ -132,8 +146,16 @@ if(error)
         value={productData.price} 
         onChange={handelChange}
         className="w-full rounded-md border border-gray-300 p-2 " required />
+      {formErrors.price && <p className="text-red-500 text-sm">{formErrors.price}</p>}
       </div>
-
+      <div className="mb-6">
+        <label className="block font-semibold mb-2">discountPrice:</label> 
+        <input type="number" name="discountPrice" 
+        value={productData.discountPrice} 
+        onChange={handelChange}
+        className="w-full rounded-md border border-gray-300 p-2 " required />
+      {formErrors.discountPrice && <p className="text-red-500 text-sm">{formErrors.discountPrice}</p>}
+      </div>
       <div className="mb-6">
         <label className="block font-semibold mb-2">Gender:</label> 
          <select name="gender"  value={productData.gender}
@@ -143,6 +165,7 @@ if(error)
             <option value="Women">Women</option>
             <option value="UniSex">UniSex</option>
            </select>
+           {formErrors.gender && <p className="text-red-500 text-sm">{formErrors.gender}</p>}
       </div>
 
       <div className="mb-6 flex gap-4 items-center">
@@ -157,6 +180,8 @@ if(error)
       className="w-1/4 rounded-md p-2 border border-gray-300"
       value={productData.brand.name}
       onChange={handelChange} />
+      {formErrors.category && <p className="text-red-500 text-sm">{formErrors.category}</p>}
+      {formErrors.brand && <p className="text-red-500 text-sm">{formErrors.brand}</p>}
       </div>
 
       <div className="mb-6">
@@ -165,6 +190,7 @@ if(error)
         value={productData.sku} 
         onChange={handelChange}
         className="w-full rounded-md border border-gray-300 p-2 " />
+        {formErrors.sku && <p className="text-red-500 text-sm">{formErrors.sku}</p>}
       </div>
 
       <div className="mb-6">
@@ -183,7 +209,8 @@ if(error)
            <select  value={variant.size}
             onChange={(e)=>handelVariantsChange(index,"size",e.target.value)}
             className="w-1/5 px-2 py-2.5 rounded-md border">
-            <option value="S">S</option>
+            <option value="XS">XS</option>
+            <option value="S" defaultChecked>S</option>
             <option value="M">M</option>
             <option value="L">L</option>
             <option value="XL">XL</option>
@@ -200,6 +227,14 @@ if(error)
        bg-red-500 hover:bg-red-700 transition-colors 
        px-2 py-1 lg:px-4 lg:py-2 rounded-lg
       ">Remove Variant</button>
+      {formErrors[`variants.${index}.color`] &&(
+        <p className="text-red-500 text-sm ">{formErrors[`variants.${index}.color`]}</p>
+        )}
+      {formErrors[`variants.${index}.size`] &&(
+        <p className="text-red-500 text-sm ">{formErrors[`variants.${index}.size`]}</p>)}
+      {formErrors[`variants.${index}.stock`] &&(
+        <p className="text-red-500 text-sm ">{formErrors[`variants.${index}.stock`]}</p>)}
+
         </div>
       ))
       }

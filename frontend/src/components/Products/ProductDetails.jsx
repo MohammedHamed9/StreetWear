@@ -10,7 +10,8 @@ const ProductDetails = ({productId}) => {
   const {id}=useParams();
   const {selectedProduct,similarProducts,loading,error}
   =useSelector(state=>state.product);
-    const{user,guestId}=useSelector(state=>state.auth)
+  const {loading:cartLoading,error:cartError}=useSelector(state=>state.cart);
+  const{user,guestId}=useSelector(state=>state.auth)
   const [mainImage,setMainImage]=useState("");
   const [selectedColor,setSelectedColor]=useState("");
   const [selectedSize,setSelectedSize]=useState("");
@@ -37,7 +38,8 @@ const ProductDetails = ({productId}) => {
      return toast.error("Please select  a color and size before adding to the cart")
     setAddingButtom(true)
     try{
-      await dispatch(addToCart({productId:fetchedId,userId:user?._id,guestId,
+      console.log({productId:fetchedId,userId:user?.id,guestId,})
+      await dispatch(addToCart({productId:fetchedId,userId:user?.id,guestId,
       color:selectedColor,size:selectedSize,quantity:selectedQuantity}))
       .unwrap()
       setAddingButtom(false);
@@ -131,10 +133,10 @@ const ProductDetails = ({productId}) => {
        <button onClick={()=>setSelectedQuantity((quaintity)=>quaintity+1)} className="px-2 py-1 bg-gray-200 rounded text-lg ">+</button>
     </div>
     </div>
-    <button onClick={handelAddProduct} disabled={addingButtom}
+    <button onClick={handelAddProduct} disabled={cartLoading}
      className={`w-full bg-black  text-white text-xs py-2 px-6 rounded mb-4
-      ${addingButtom?"bg-opacity-50":"hover:bg-gray-800"}`}>
-      {addingButtom?"Adding...":"ADD TO CART"}</button>
+      ${cartLoading?"bg-opacity-50":"hover:bg-gray-800"}`}>
+      {cartLoading?"Adding...":"ADD TO CART"}</button>
      
      <div className="mt-10">
       <p className="text-lg text-gray-800 font-medium mb-4">Characterstics:</p>

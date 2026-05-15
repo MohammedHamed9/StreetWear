@@ -9,13 +9,13 @@ import { useEffect } from "react";
 const CartDrawer = ({drawerOpen,setDrawerOpen}) => {
   const {user,guestId}=useSelector(state=>state.auth);
   const { cart,loading, error}=useSelector(state=>state.cart);
-  const userId=user?._id;
+  const userId=user?.id;
   const navigate=useNavigate()
   const dispatch=useDispatch();
 const drawer = useRef();useEffect(()=>{
   if(userId|| guestId)
     dispatch(fetchCart({userId,guestId}));
-},[dispatch,user?._id,guestId,navigate]);
+},[dispatch,user?.id,guestId,navigate]);
 
 useEffect(()=>{
 function handelClick(e){

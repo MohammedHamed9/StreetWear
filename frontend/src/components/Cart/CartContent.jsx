@@ -16,8 +16,14 @@ const {loading,error}=useSelector(state=>state.cart);
     }
 
     function handelremoveProduct({productId,size,color}){
+        
         dispatch(removeProduct({productId,size,color,userId,guestId}))
     }
+if(loading){
+    return  <div className="flex justify-center items-center h-48">
+        <p>Loading Cart...</p>
+    </div>
+}
   return (
     <div>
         {cart.products.map((product,index) => (
