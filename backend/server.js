@@ -19,7 +19,7 @@ const orderRoutes=require("./routes/orderRoutes")
 const subscriberRoutes=require("./routes/subscriberRoutes")
 app.use(express.json());
 app.use(cors({
-  origin: ["http://localhost:5173", "https://street-wear-o3jd.vercel.app"], 
+  origin: true, 
   credentials: true
 }));
 app.use(morgan("dev"))

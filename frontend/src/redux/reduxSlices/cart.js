@@ -14,7 +14,7 @@
         async({userId,guestId},{rejectWithValue})=>{
             console.log({userId,guestId})
         try{
-            const res=await axios.get(`${VITE_API_URL}streetwear/cart`,{
+            const res=await axios.get(`${VITE_API_URL}/streetwear/cart`,{
                 params:{userId,guestId}
             });
         
