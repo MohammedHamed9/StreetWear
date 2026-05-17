@@ -5,7 +5,6 @@ import {Link} from "react-router-dom"
 
 const URL='http://localhost:3000'
 const VITE_API_URL=import.meta.env.VITE_API_URL
-console.log(VITE_API_URL);
 const NewArrivals = () => {
   const scrollRef=useRef();
   const [canScrollLeft,setCanScrollLeft]=useState(true);

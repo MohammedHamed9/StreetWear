@@ -12,7 +12,6 @@
     }
     export const fetchCart=createAsyncThunk('cart/fetchCart',
         async({userId,guestId},{rejectWithValue})=>{
-            console.log({userId,guestId})
         try{
             const res=await axios.get(`${VITE_API_URL}/streetwear/cart`,{
                 params:{userId,guestId}
@@ -42,10 +41,8 @@
     export const updateProductQuantity=createAsyncThunk('cart/updateProductQuantity',
         async({productId,quantity,size,color,userId,guestId},{rejectWithValue})=>{
             try{
-                console.log({productId,quantity,size,color,userId,guestId}  )
             const res=await axios.patch(`${VITE_API_URL}/streetwear/cart`,
                 {productId,quantity,size,color,userId,guestId});
-                console.log(res.data);
             return res.data
             }catch(error){
                 console.log(error.response.data.message);

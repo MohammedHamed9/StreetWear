@@ -4,20 +4,14 @@ const appError = require("../utils/appError");
 const catchAsync = require("./catchAsync");
 const User=require("../models/UserModel");
 const uploadToCloudinary = require("../utils/uploadToCloudinary");
-const sendEmail=require("../utils/sendEmail")
+const sendEmail=require("../utils/sendEmail");
+const createCookie = require("../utils/createCookie");
 const signToken=(id)=>{
     return jwt.sign({id},process.env.JWT_SECRET,{
         expiresIn:process.env.EXPIRE_DATE
     });
 }
-const createCooki=(token,res)=>{
-    const cookieObt={
-        expires:new Date(Date.now()+90*24*60*60*1000),
-        httpOnly:true,
-        secure:process.env.NODE_ENV === 'production'
-    }
-    res.cookie('jwt',token,cookieObt)
-}
+
 const usetCtrl={
     resgister: catchAsync(async(req,res,next)=>{
             console.log(req.body);
@@ -27,8 +21,9 @@ const usetCtrl={
                 return next(new appError("User already exists", 400));
             const user=await User.create(req.body);
             const token=signToken(user.id);
+            createCookie(token,res);
             return res.status(201).json({
-                message:'Welcome to out store',
+                message:`Welcome ${user.name}`,
                 user:{
                     id:user.id,
                     name:user.name,
@@ -45,7 +40,7 @@ const usetCtrl={
             if(!oldUser||!await oldUser.matchPasswords(password,oldUser.password))
              return  next(new appError("Invalid Credentails", 400));
             const token=signToken(oldUser.id);
-            createCooki(token,res);
+            createCookie(token,res);
             let user={
             id:oldUser._id,
             name:oldUser.name,
@@ -124,7 +119,7 @@ const usetCtrl={
         user.passwordRestExpires=undefined;
         await user.save();
         const token =signToken(user._id)
-        createCooki(token,res);
+        createCookie(token,res);
         res.status(200).json({
             message:'The password is updated successfully..',
             token

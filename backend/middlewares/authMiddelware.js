@@ -9,10 +9,13 @@ const authCtrl={
             return next(new appError("You are not loged in!",400));
 
         const token=req.headers.authorization.split(" ")[1];
+
         const decoded=jwt.verify(token,process.env.JWT_SECRET);
         const currentUser=await User.findById(decoded.id);
+
         if(!currentUser)
             return next(new appError("this user is no longer exist",400))
+        
         if(currentUser.passwordChanedAt){
            let passwordChangedAtTimeStamp= 
            parseInt(currentUser.passwordChanedAt.getTime()/1000,10)

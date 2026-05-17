@@ -1,6 +1,7 @@
 const express=require("express")
 const cors=require("cors");
 const morgan=require("morgan")
+const cookieParser=require("cookie-parser");
 const dotenv=require("dotenv");
 dotenv.config();
 const DBconnection=require("./config/DBconnection");
@@ -19,9 +20,10 @@ const orderRoutes=require("./routes/orderRoutes")
 const subscriberRoutes=require("./routes/subscriberRoutes")
 app.use(express.json());
 app.use(cors({
-  origin: true, 
+  origin: ['http://localhost:5173', 'https://street-wear-xji8.vercel.app'], 
   credentials: true
 }));
+app.use(cookieParser());
 app.use(morgan("dev"))
 app.use("/streetwear/user",userRoutes)
 app.use("/streetwear/category",categoryRoutes)
