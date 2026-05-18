@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { createCheckout, finalizeCheckOut,payCheckout } from "../../redux/reduxSlices/checkout";
 import { useForm } from "react-hook-form";
-import { clearCart } from "../../redux/reduxSlices/cart";
 
 const ChcekOut = () => {
   const navigate=useNavigate()
@@ -20,7 +19,6 @@ const ChcekOut = () => {
   },[cart,navigate]);
 
   async function handelCreateCheckout(data){
-    console.log(errors);
     if(cart&&cart.products.length>0){
       try{
     const res= 

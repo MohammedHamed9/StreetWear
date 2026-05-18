@@ -198,7 +198,6 @@ const productCtrl={
     }),
     getSimilrProducts: catchAsync(async(req,res,next)=>{
              const product = await Product.findById(req.params.id)
-             console.log(req.cookies.jwt);
             if(!product){
                 return next(new appError('The Product is not exist!',404));
             }

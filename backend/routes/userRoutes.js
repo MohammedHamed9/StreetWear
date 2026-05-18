@@ -13,14 +13,16 @@ const { loginSchema,
     resetPasswordSchema,
 updatePasswordSchema } = require("../validations/userValidation");
 const { createUserSchema, updateUserSchema, updateOrderSchema, idParamSchema: adminIdParamSchema, fieldsQuerySchema } = require("../validations/adminValidation");
+const limiter = require("../middlewares/RateLimiter");
 
-router.post("/register",validate(registerSchema),userCtrl.resgister);
-router.post("/login",validate(loginSchema),userCtrl.login);
+router.post("/register",validate(registerSchema),limiter,userCtrl.resgister);
+router.post("/login",validate(loginSchema),limiter,userCtrl.login);
+router.get("/logout",userCtrl.logout);
 router.get("/getProfile",auth.protected ,userCtrl.getMe);
 router.patch("/update-me",auth.protected,
 upload.single("avatar"),resize(200,200),validate(updateMeSchema),userCtrl.updateMe);
-router.get("/forget-password",validate(forgetPasswordSchema),userCtrl.forgetPassword)
-router.post("/reset-password/:token",validate(resetPasswordSchema),userCtrl.resetPassword);
+router.get("/forget-password",validate(forgetPasswordSchema),limiter,userCtrl.forgetPassword)
+router.post("/reset-password/:token",validate(resetPasswordSchema),limiter,userCtrl.resetPassword);
 router.post("/update-password",auth.protected,validate(updatePasswordSchema),userCtrl.updatePassword);
 
 

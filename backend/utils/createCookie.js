@@ -3,7 +3,7 @@ const createCookie=(token,res)=>{
     const cookieObt={
         httpOnly:true,
         secure:isProduction,
-        sameSite:isProduction?'None':'Lax',
+        sameSite:'None',
         expires:new Date(Date.now()+90*24*60*60*1000)
     }
     res.cookie('jwt',token,cookieObt)

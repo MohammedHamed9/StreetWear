@@ -16,7 +16,10 @@ const orderCtrl={
             });
     }),
     getOrder: catchAsync(async (req,res,next)=>{
-            const order=await Order.findById(req.params.id)
+            const order=await Order.findById({
+            _id:req.params.id,
+            user:req.user._id
+            })
             .populate("user","name email");
             if(!order)
             return next(new appError("Order Not Found!",404));

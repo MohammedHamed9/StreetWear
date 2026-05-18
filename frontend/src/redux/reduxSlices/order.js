@@ -10,7 +10,6 @@ export const fetchOrders=createAsyncThunk('order/fetchUserOrders',
                 Authorization:`Bearer ${localStorage.getItem("userToken")}`
             }
         });
-        console.log(res.data)
         return res.data.orders;
         }
         catch(error){

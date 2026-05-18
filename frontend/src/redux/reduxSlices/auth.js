@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from"axios"
+import axios from "axios";
 import { toast } from "sonner";
-const VITE_API_URL=import.meta.env.VITE_API_URL
+const VITE_API_URL = import.meta.env.VITE_API_URL
 
 //LOCAL-STORAGE VARS
 const userFromStorage=
@@ -20,7 +20,7 @@ let initialState={
 export const loginUser=createAsyncThunk('auth/loginUser',
     async(userData,{rejectWithValue})=>{
     try{
-   const res=await axios.post(`${VITE_API_URL}/streetwear/user/login`,userData);
+   const res=await axios.post(`${VITE_API_URL}/streetwear/user/login`,userData,{withCredentials:true});
         localStorage.setItem("userInfo",JSON.stringify(res.data.user));
         localStorage.setItem("userToken",res.data.token);
         toast.success(res.data.message)

@@ -2,6 +2,9 @@ const express=require("express")
 const cors=require("cors");
 const morgan=require("morgan")
 const cookieParser=require("cookie-parser");
+const expressMongoSanitize=require("express-mongo-sanitize");
+const helmet=require("helmet");
+const hpp=require("hpp");
 const dotenv=require("dotenv");
 dotenv.config();
 const DBconnection=require("./config/DBconnection");
@@ -25,6 +28,9 @@ app.use(cors({
 }));
 app.use(cookieParser());
 app.use(morgan("dev"))
+app.use(helmet());
+app.use(hpp());
+app.use(expressMongoSanitize());
 app.use("/streetwear/user",userRoutes)
 app.use("/streetwear/category",categoryRoutes)
 app.use("/streetwear/brand",brandRoutes);

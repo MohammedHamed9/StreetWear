@@ -56,7 +56,9 @@ const usetCtrl={
     logout: catchAsync(async(req,res,next)=>{
         res.cookie('jwt','logout',{
         expires:new Date(Date.now()+10*1000),
-        httpOnly:true
+        httpOnly:true,
+        sameSite:
+        process.env.NODE_ENV === "production"? "none": "lax"
    });
    res.status(200).json({
     message:'loggedout successfully..'
@@ -65,7 +67,7 @@ const usetCtrl={
     getMe: catchAsync(async(req,res,next)=>{
             return res.status(200).json({
                 message:`welcome `,
-                User:req.user
+                user:req.user
             });
     }),
     updateMe: catchAsync(async(req,res,next)=>{ 

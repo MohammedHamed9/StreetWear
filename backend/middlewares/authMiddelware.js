@@ -4,11 +4,15 @@ const User=require("../models/UserModel")
 const authCtrl={
     protected:async (req,res,next)=>{
       try{
-          if(!req.headers.authorization||
-            !req.headers.authorization.startsWith("Bearer"))
-            return next(new appError("You are not loged in!",400));
+          let token;
+          if(req.headers.authorization && req.headers.authorization.startsWith("Bearer")){
+            token=req.headers.authorization.split(" ")[1];
+          } else if(req.cookies && req.cookies.jwt){
+            token=req.cookies.jwt;
+          }
 
-        const token=req.headers.authorization.split(" ")[1];
+          if(!token || token === 'logout')
+            return next(new appError("You are not loged in!",400));
 
         const decoded=jwt.verify(token,process.env.JWT_SECRET);
         const currentUser=await User.findById(decoded.id);
