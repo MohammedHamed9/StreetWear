@@ -274,8 +274,8 @@ const getAllQueryProductsSchema=Joi.object({
         'string.empty': 'product collections cannot be empty',
         'string.min': 'product collections should have at least 3 characters',
     }),
-    size:Joi.array().items(Joi.string().trim()),
-    color:Joi.array().items(Joi.string()),
+    size:Joi.string().trim(),
+    color:Joi.string().trim(),
     gender:Joi.string().trim().valid("Men","Women","Unisex").messages({
         'string.base': 'product gender must be a text',
         'string.empty': 'product gender cannot be empty',

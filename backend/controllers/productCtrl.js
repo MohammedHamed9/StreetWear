@@ -4,6 +4,8 @@ const Product=require("../models/ProductModel");
 const appError = require("../utils/appError");
 const catchAsync = require("./catchAsync");
 const uploadToCloudinary=require("../utils/uploadToCloudinary");
+const redis=require("../config/RedisConenction");
+const { generateCacheKey, getCache, setCache, deleteCache } = require("../utils/cache");
 const productCtrl={
     createProduct: catchAsync(async(req,res,next)=>{
             let {
@@ -67,6 +69,10 @@ const productCtrl={
                 fit,
                 admin_created_id:req.user._id
         });
+        await deleteCache("all-products:*");
+        await deleteCache("best-seller-product");
+        await deleteCache("new-arrivals-products");
+        await deleteCache("similar-products:*");
         res.status(201).json({
             message:"The Product is created successfully✅",
             product
@@ -104,6 +110,10 @@ const productCtrl={
                 new:true,
                 runValidators:true
             });
+            await deleteCache("all-products:*");
+            await deleteCache("best-seller-product");
+            await deleteCache("new-arrivals-products");
+            await deleteCache("similar-products:*");
             return res.status(200).json({
                 message:"The Product is updated successfully✅",
                 //product
@@ -113,6 +123,14 @@ const productCtrl={
      let { sortBy,page,limit,skip,fields, collections, gender, minPrice, maxPrice, 
         search, category, brand,material,size,color
         } =req.query;
+
+    const cacheKey = generateCacheKey("all-products", req.query);
+    const cached = await getCache(cacheKey);
+    if(cached) {
+        console.log(cacheKey);
+        console.log("Products retrieved from cache.");
+      return res.status(200).json(cached);
+    }
     let query={}
     if(collections &&collections.toLowerCase()!='all'){
         query.collections=collections 
@@ -175,7 +193,7 @@ const productCtrl={
             const total=await Product.countDocuments(query);
             const hasPrev=page>1;
             const hasNext=(page * limit) <total
-            return res.status(200).json({
+            const response = {
                 products,
                 paginate:{
                     page,
@@ -183,7 +201,9 @@ const productCtrl={
                     hasPrev,
                     hasNext,
                 }
-            });
+            };
+            await setCache(cacheKey, response);
+            return res.status(200).json(response);
     }),
     getProduct: catchAsync(async(req,res,next)=>{
              const product = await Product.findById(req.params.id)
@@ -197,10 +217,19 @@ const productCtrl={
             });
     }),
     getSimilrProducts: catchAsync(async(req,res,next)=>{
-             const product = await Product.findById(req.params.id)
-            if(!product){
+    const cacheKey = `similar-products:${req.params.id}`;
+    const cachedData = await getCache(cacheKey);
+    if (cachedData) {
+        console.log("Similar products retrieved from cache.");
+        return res.status(200).json({
+            similtProducts: cachedData
+        });
+    }
+    const product = await Product.findById(req.params.id)
+        if(!product){
                 return next(new appError('The Product is not exist!',404));
             }
+            
              similtProducts= await Product.find({
                _id:{$ne:req.params.id},
                 category:product.category,
@@ -208,37 +237,53 @@ const productCtrl={
              }).limit(4)
              .populate("category","name type -_id")
              .populate("brand","name -_id");
+    await setCache(cacheKey, similtProducts);
             return res.status(200).json({
                 similtProducts
             });
     }),
     getBestSellerProduct: catchAsync(async(req,res,next)=>{
+             const cacheKey = "best-seller-product";
+             const cached = await getCache(cacheKey);
+             if(cached){
+               return res.status(200).json(cached);
+             }
              const product = await Product.findOne().sort({rating:-1})
              .populate("category","name type -_id")
              .populate("brand","name -_id");
             if(!product){
                 return next(new appError('The Product is not exist!',404));
             }
-            return res.status(200).json({
-                best_seller:product
-            });
+            const response = { best_seller:product };
+            await setCache(cacheKey, response);
+            return res.status(200).json(response);
     }),
     getNewArrivalsProducts: catchAsync(async(req,res,next)=>{
+             const cacheKey = "new-arrivals-products";
+             const cached = await getCache(cacheKey);
+             if(cached){
+                console.log("New arrivals products retrieved from cache.");
+               return res.status(200).json(cached);
+             }
              const product = await Product.find().sort({createdAt:-1}).limit(8)
              .populate("category","name type -_id")
              .populate("brand","name -_id");
             if(!product){
                 return next(new appError('The Product is not exist!',404));
             }
-            return res.status(200).json({
-               newArrivals:product
-            });
+            const response = { newArrivals:product };
+            await setCache(cacheKey, response);
+            return res.status(200).json(response);
     }),
     deleteProduct: catchAsync(async(req,res,next)=>{
             const product=await Product.findById(req.params.id);
             if(!product)
              return next(new appError('The Product is not exist!',404));
              await Product.findByIdAndDelete(req.params.id);
+             await deleteCache("all-products:*");
+             await deleteCache("best-seller-product");
+             await deleteCache("new-arrivals-products");
+             await deleteCache("similar-products:*");
             return res.status(203).json({
                 message:"The Product is deleted successfully✅",
             });

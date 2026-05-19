@@ -207,18 +207,3 @@ const cartCtrl={
     })
 }
 module.exports=cartCtrl
-/*
-if(size){
-               let isSizeExist=product.variants.some(el=>el.size===size);
-               if(!isSizeExist)
-                return res.status(404).json({
-                message:"Sorry this size not exists now."
-                })
-            }
-            if(color){
-            let isColorExist=product.variants.some(el=>el.color===color);
-            if(!isColorExist)
-                return res.status(404).json({
-                message:"Sorry this color not exists now."
-                })
-            }*/

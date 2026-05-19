@@ -8,6 +8,7 @@ const categoryCtrl={
             const admin_created_id=req.user.id;
             const slug=slugify(name);
             const category=await Category.create({name,slug,type,admin_created_id});
+            await deleteCache("all-categories:*");
             return res.status(201).json({
                 message:"the category is created successfully✅",
                 category
@@ -26,6 +27,7 @@ const categoryCtrl={
                 new:true,
                 runValidators:true
             });
+            await deleteCache("all-categories:*");
             return res.status(200).json({
                 message:"the category is updated successfully✅",
                 category
@@ -61,19 +63,21 @@ const categoryCtrl={
             const totalCategories=await Category.countDocuments(categories);
             const hasPrev=page>1;
             const hasNext=page*limit<totalCategories
-             return res.status(200).json({
-                data:categories,
-                paginate:{
+            const response = {
+             data:categories,
+             paginate:{
                     page,
                     totalCategories,
                     hasPrev,
                     hasNext,
                 }
-            })
+            };
+             return res.status(200).json(response)
     }),
     deleteCtegory: catchAsync(async(req,res,next)=>{
             const filter=req.body.filter;
             await Category.deleteMany({_id: {$in:filter }})
+            await deleteCache("all-categories:*");
             res.status(204).json({
                 message:"done"});
     })

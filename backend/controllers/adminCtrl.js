@@ -3,6 +3,7 @@ const User=require("../models/UserModel");
 const Order=require("../models/OrderModel");
 const appError = require("../utils/appError");
 const catchAsync = require("./catchAsync");
+const { getCache, setCache, deleteCache } = require("../utils/cache");
 const adminCtrl={
     createUser: catchAsync(async (req,res,next)=>{
             let {name,email,password,role}=req.body;
@@ -14,7 +15,7 @@ const adminCtrl={
                 email,
                 password,
                 role});
-
+            await deleteCache("all-users");
             return res.status(201).json({
                 message:"New User is created✅",
                 user:newUser
@@ -25,6 +26,7 @@ const adminCtrl={
                 return next(new appError("this user is not exists!",404));
             const updatedUser=await User.findByIdAndUpdate({_id:req.params.id},req.body
                 ,{new:true,runValidators:true});
+            await deleteCache("all-users");
             return res.status(200).json({
                 message:"the user is updated",
                 updatedUser
@@ -43,21 +45,32 @@ const adminCtrl={
             });
     }),
      getAllUsers:catchAsync(async (req,res,next)=>{
+           const cacheKey = "all-users";
+           const cached = await getCache(cacheKey);
+           if(cached){
+             return res.status(200).json(cached);
+           }
            const users=await User.find({}).sort({createdAt:-1});
-             return res.status(200).json({
-                users
-            })
+           const response = { users };
+           await setCache(cacheKey, response);
+             return res.status(200).json(response);
     }),
     deleteUser:catchAsync(async(req,res,next)=>{
             await User.findByIdAndDelete({_id: req.params.id})
+            await deleteCache("all-users");
             res.status(204).json({
                 message:"the user is deleted successfully"});
     }),
     getAllOrders: catchAsync(async (req,res,next)=>{
+                const cacheKey = "all-orders";
+                const cached = await getCache(cacheKey);
+                if(cached){
+                  return res.status(200).json(cached);
+                }
                 const orders=await Order.find({}).populate("user","name email role")
-                return res.status(200).json({
-                    orders
-                })
+                const response = { orders };
+                await setCache(cacheKey, response);
+                return res.status(200).json(response);
         }),
     getOrder: catchAsync(async (req,res,next)=>{
             let fields="-__v"
@@ -85,6 +98,8 @@ const adminCtrl={
                 const updatedOrder=await Order.findByIdAndUpdate({_id:req.params.id},req.body,
                     {new:true,runValidators:true}
                 ).populate("user");
+                await deleteCache("all-orders");
+                await deleteCache("my-orders:*");
                 return res.status(201).json({
                     message:"the user is updated successfully ✅",
                     updatedOrder
@@ -94,7 +109,9 @@ const adminCtrl={
             const order=await Order.findById(req.params.id);
             if(!order)
                 return next(new appError("this order is not exists!",404));
-            await Order.findByIdAndDelete({_id: req.params.id})
+            await Order.findByIdAndDelete({_id: req.params.id});
+            await deleteCache("all-orders");
+            await deleteCache("my-orders:*");
             res.status(204).json({
                 message:"the Order is deleted successfully"});
     }),

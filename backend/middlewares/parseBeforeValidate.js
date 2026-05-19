@@ -3,6 +3,7 @@ const appError = require("../utils/appError");
 const parseReqBody=(fields=[],property="body")=>{
 return (req,res,next)=>{
     try{
+        console.log(req[property]);
     for(const field of fields)
     if(req[property][field])
         req[property][field]=JSON.parse(req[property][field])

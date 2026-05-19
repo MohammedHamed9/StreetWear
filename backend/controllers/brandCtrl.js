@@ -8,6 +8,7 @@ const brandCtrl={
             const admin_created_id=req.user.id;
             const slug=slugify(name);
             const brand=await Brand.create({name,slug,admin_created_id});
+            await deleteCache("all-brands:*");
             return res.status(201).json({
                 message:"the category is brand successfully✅",
                 brand
@@ -21,8 +22,7 @@ const brandCtrl={
             const brand=await Brand.findByIdAndUpdate({_id:req.params.id},req.body,{
                 new:true,
                 runValidators:true
-            });
-            return res.status(200).json({
+            });            await deleteCache("all-brands:*");            return res.status(200).json({
                 message:"the Brand is updated successfully✅",
                 brand
             });
@@ -57,7 +57,7 @@ const brandCtrl={
             const totalCategories=await Brand.countDocuments(brands);
             const hasPrev=page>1;
             const hasNext=page*limit<totalCategories
-             return res.status(200).json({
+            const response = {
                 data:brands,
                 paginate:{
                     page,
@@ -65,11 +65,13 @@ const brandCtrl={
                     hasPrev,
                     hasNext,
                 }
-            })
+            };
+             return res.status(200).json(response)
     }),
     deleteBrand: catchAsync(async(req,res,next)=>{
             const filter=req.body.filter;
             await Brand.deleteMany({_id: {$in:filter }})
+            await deleteCache("all-brands:*");
             res.status(204).json({
                 message:"done"});
     })

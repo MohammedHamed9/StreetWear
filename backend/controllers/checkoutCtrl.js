@@ -1,6 +1,7 @@
 const slugify=require("slugify")
 const appError = require("../utils/appError");
 const catchAsync = require("./catchAsync");
+const { deleteCache } = require("../utils/cache");
 const Checkout = require("../models/CheckoutModel");
 const Order=require("../models/OrderModel")
 const Cart=require("../models/CartModel")
@@ -62,6 +63,8 @@ const checkoutCtrl={
             checkout.finalizedAt=Date.now()
             await checkout.save()
             await Cart.findOneAndDelete({user:req.user._id});
+            await deleteCache("all-orders");
+            await deleteCache(`my-orders:${req.user._id}`);
             return res.status(200).json({
                 newOrder
             });

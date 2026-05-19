@@ -29,7 +29,6 @@ router.get("/new-arrivals",productCtrl.getNewArrivalsProducts);
 router.get("/:id",validate(ProductIdParams,"params"),productCtrl.getProduct);
  //there phases 1-validation 2-normlization 3-controller
 router.get("/",
-    parseReqBody(["size","color"],"query"),
     validate(getAllQueryProductsSchema,"query"),
     prepareQuery,
     productCtrl.getAllProducts);

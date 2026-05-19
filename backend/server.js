@@ -30,7 +30,6 @@ app.use(cookieParser());
 app.use(morgan("dev"))
 app.use(helmet());
 app.use(hpp());
-app.use(expressMongoSanitize());
 app.use("/streetwear/user",userRoutes)
 app.use("/streetwear/category",categoryRoutes)
 app.use("/streetwear/brand",brandRoutes);

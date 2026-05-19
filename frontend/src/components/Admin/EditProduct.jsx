@@ -45,8 +45,6 @@ function handelVariantsChange(index,feild,value){
     ...oldvariants[index], 
     [feild]: feild === 'stock' ? Number(value) : value 
   };
-      console.log(oldvariants[index]);
-
   setProductData({...productData,variants:oldvariants})
 
 }
@@ -77,6 +75,7 @@ const fieldsToSend = [
       formDate.append(field, productData[field]);
     }
   });
+  
   const jsonFields = ["variants", "category", "brand", "tags", "images"];
   jsonFields.forEach(field => {
     if (productData[field]) {
@@ -209,8 +208,9 @@ if(error)
            <select  value={variant.size}
             onChange={(e)=>handelVariantsChange(index,"size",e.target.value)}
             className="w-1/5 px-2 py-2.5 rounded-md border">
+            <option value="">Select Size</option>
             <option value="XS">XS</option>
-            <option value="S" defaultChecked>S</option>
+            <option value="S" >S</option>
             <option value="M">M</option>
             <option value="L">L</option>
             <option value="XL">XL</option>

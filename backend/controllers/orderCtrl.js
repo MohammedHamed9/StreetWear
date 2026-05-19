@@ -4,16 +4,19 @@ const catchAsync = require("./catchAsync");
 const Order=require("../models/OrderModel")
 const orderCtrl={
     getMyOrders: catchAsync(async (req,res,next)=>{
+            const cacheKey = `my-orders:${req.user._id}`;
+            const cached = await getCache(cacheKey);
+            if(cached){
+              return res.status(200).json({orders: cached});
+            }
             const orders=await Order.find({user:req.user._id})
             .sort({createdAt:-1});
-            if(!orders||orders.length==0)
-            return res.status(200).json({
-                message:"You have no orders!",
-                orders:[]
-            });
-            return res.status(200).json({
-                orders
-            });
+            
+            const response = orders && orders.length > 0
+              ? { orders }
+              : { message:"You have no orders!", orders: [] };
+            await setCache(cacheKey, response);
+            return res.status(200).json(response);
     }),
     getOrder: catchAsync(async (req,res,next)=>{
             const order=await Order.findById({

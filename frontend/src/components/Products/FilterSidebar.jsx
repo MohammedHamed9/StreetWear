@@ -68,9 +68,8 @@ function handelFilterChange(e){
   }else{
     params.set(name,value)
   }
-  console.log(params.toString());
+
   setSearchParams(params);
-  console.log(searchParams.toString())
 }
 
   return (
