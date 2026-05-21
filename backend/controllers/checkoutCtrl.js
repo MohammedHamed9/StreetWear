@@ -4,7 +4,8 @@ const catchAsync = require("./catchAsync");
 const { deleteCache } = require("../utils/cache");
 const Checkout = require("../models/CheckoutModel");
 const Order=require("../models/OrderModel")
-const Cart=require("../models/CartModel")
+const Cart=require("../models/CartModel");
+const logger = require("../utils/logger");
 const checkoutCtrl={
     createCheckout: catchAsync(async (req,res,next)=>{
             const {checkoutItems,shippingAddress,paymentMethod,totalPrice}=req.body
@@ -65,6 +66,11 @@ const checkoutCtrl={
             await Cart.findOneAndDelete({user:req.user._id});
             await deleteCache("all-orders");
             await deleteCache(`my-orders:${req.user._id}`);
+            logger.info({
+                message:`Order created from checkout: ${checkout._id} to order: ${newOrder._id} by user: ${req.user.name}`,
+                userId:req.user._id,
+                email:req.user.email
+            });
             return res.status(200).json({
                 newOrder
             });

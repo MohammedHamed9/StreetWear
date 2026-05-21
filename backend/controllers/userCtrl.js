@@ -6,6 +6,7 @@ const User=require("../models/UserModel");
 const uploadToCloudinary = require("../utils/uploadToCloudinary");
 const sendEmail=require("../utils/sendEmail");
 const createCookie = require("../utils/createCookie");
+const logger = require("../utils/logger");
 const signToken=(id)=>{
     return jwt.sign({id},process.env.JWT_SECRET,{
         expiresIn:process.env.EXPIRE_DATE
@@ -14,7 +15,6 @@ const signToken=(id)=>{
 
 const usetCtrl={
     resgister: catchAsync(async(req,res,next)=>{
-            console.log(req.body);
             const {name,email,password}=req.body;
             const oldUser=await User.findOne({email});
             if(oldUser)
@@ -22,6 +22,11 @@ const usetCtrl={
             const user=await User.create(req.body);
             const token=signToken(user.id);
             createCookie(token,res);
+            logger.info({
+                message:`New user registered: ${user.name} `,
+                userId:user._id,
+                email:user.email
+            });
             return res.status(201).json({
                 message:`Welcome ${user.name}`,
                 user:{
@@ -37,8 +42,14 @@ const usetCtrl={
     login: catchAsync(async(req,res,next)=>{
             const{email,password}=req.body
             const oldUser=await User.findOne({email})
-            if(!oldUser||!await oldUser.matchPasswords(password,oldUser.password))
-             return  next(new appError("Invalid Credentails", 400));
+            if(!oldUser||!await oldUser.matchPasswords(password,oldUser.password)){
+                logger.warn({
+                    message:`Failed login attempt for email: ${email}`,
+                    ip:req.ip,
+                    userAgent:req.headers['user-agent']
+                });
+                return  next(new appError("Invalid Credentails", 400));
+            }
             const token=signToken(oldUser.id);
             createCookie(token,res);
             let user={
@@ -47,6 +58,11 @@ const usetCtrl={
             email:oldUser.email,
             role:oldUser.role
             }
+            logger.info({
+                message:`User logged in: ${oldUser.name} `,
+                userId:oldUser._id,
+                email:oldUser.email
+            });
             return res.status(200).json({
                 message:`welcome ${oldUser.name}`,
                 user,

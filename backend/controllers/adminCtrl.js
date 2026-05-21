@@ -4,6 +4,7 @@ const Order=require("../models/OrderModel");
 const appError = require("../utils/appError");
 const catchAsync = require("./catchAsync");
 const { getCache, setCache, deleteCache } = require("../utils/cache");
+const logger = require("../utils/logger");
 const adminCtrl={
     createUser: catchAsync(async (req,res,next)=>{
             let {name,email,password,role}=req.body;
@@ -16,6 +17,11 @@ const adminCtrl={
                 password,
                 role});
             await deleteCache("all-users");
+            logger.info({
+                message:`Admin created new user: ${newUser.name} with role: ${newUser.role}`,
+                userId:newUser._id,
+                email:newUser.email
+            });
             return res.status(201).json({
                 message:"New User is created✅",
                 user:newUser
@@ -27,6 +33,11 @@ const adminCtrl={
             const updatedUser=await User.findByIdAndUpdate({_id:req.params.id},req.body
                 ,{new:true,runValidators:true});
             await deleteCache("all-users");
+            logger.info({
+                message:`Admin updated user: ${updatedUser.name} with role: ${updatedUser.role}`,
+                userId:updatedUser._id,
+                email:updatedUser.email
+            });
             return res.status(200).json({
                 message:"the user is updated",
                 updatedUser
@@ -58,6 +69,10 @@ const adminCtrl={
     deleteUser:catchAsync(async(req,res,next)=>{
             await User.findByIdAndDelete({_id: req.params.id})
             await deleteCache("all-users");
+            logger.info({
+                message:`Admin deleted user with id: ${req.params.id}`,
+                userId:req.params.id
+            });
             res.status(204).json({
                 message:"the user is deleted successfully"});
     }),
@@ -100,6 +115,11 @@ const adminCtrl={
                 ).populate("user");
                 await deleteCache("all-orders");
                 await deleteCache("my-orders:*");
+                logger.info({
+                    message:`Admin updated order with id: ${updatedOrder._id} to status: ${updatedOrder.status}`,
+                    userId:updatedOrder.user._id,
+                    email:updatedOrder.user.email
+                });
                 return res.status(201).json({
                     message:"the user is updated successfully ✅",
                     updatedOrder
@@ -111,6 +131,10 @@ const adminCtrl={
                 return next(new appError("this order is not exists!",404));
             await Order.findByIdAndDelete({_id: req.params.id});
             await deleteCache("all-orders");
+            logger.info({
+                message:`Admin deleted order with id: ${req.params.id}`,
+                userId:req.params.id
+            });
             await deleteCache("my-orders:*");
             res.status(204).json({
                 message:"the Order is deleted successfully"});

@@ -10,6 +10,7 @@ dotenv.config();
 const DBconnection=require("./config/DBconnection");
 const appError = require("./utils/appError");
 const ErrorController = require("./controllers/ErrorController");
+const logger=require("./utils/logger");
 const DB=process.env.DB
 const app=express();
 const PORT= process.env.PORT ||3000 ;
@@ -46,7 +47,7 @@ app.use((req,res,next)=>{
 app.use(ErrorController);
 DBconnection.connect(DB).then(()=>{
 app.listen(PORT,()=>{
-    console.log(`SERVER IS RUNNING ON PROT: ${PORT}...`)
+    logger.info(`SERVER IS RUNNING ON PROT: ${PORT}...`)
 })
 }).catch((err)=>{
     console.log(err);

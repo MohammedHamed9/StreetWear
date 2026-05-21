@@ -1,6 +1,7 @@
 const jwt   = require("jsonwebtoken");
 const appError = require("../utils/appError")
-const User=require("../models/UserModel")
+const User=require("../models/UserModel");
+const logger = require("../utils/logger");
 const authCtrl={
     protected:async (req,res,next)=>{
       try{
@@ -11,8 +12,14 @@ const authCtrl={
             token=req.cookies.jwt;
           }
 
-          if(!token || token === 'logout')
+          if(!token || token === 'logout'){
+            logger.warn({
+                message:`Unauthorized access attempt to ${req.originalUrl} without valid token`,
+                ip:req.ip,
+                userAgent:req.headers['user-agent']
+              });
             return next(new appError("You are not loged in!",400));
+          }
 
         const decoded=jwt.verify(token,process.env.JWT_SECRET);
         const currentUser=await User.findById(decoded.id);
@@ -37,6 +44,11 @@ const authCtrl={
     restrictedTo:(...roles)=>{
         return (req,res,next)=>{
             if(!roles.includes(req.user.role))
+              logger.warn({
+                message:`Unauthorized access attempt to ${req.originalUrl} by user: ${req.user.name} with role: ${req.user.role}`,
+                userId:req.user._id,
+                email:req.user.email
+              });
                 return next(new appError("SORRY U CANT ACCESS THIS ROUTE !",403))
             next();
         }

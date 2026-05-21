@@ -11,6 +11,14 @@ module.exports=(err,req,res,next)=>{
 }
 const sendDev=(err,res)=>{
     console.error('ERROR 💥', err);
+    logger.error({
+        message:`ERROR 💥 ${err.message} `,
+        stack:err.stack,
+        method:req.method,
+        url:req.originalUrl,
+        ip:req.ip,
+        user:req.user?._id||null,
+    });
     return res.status(err.statusCode).json({
             success: false,
             message: err.message,
