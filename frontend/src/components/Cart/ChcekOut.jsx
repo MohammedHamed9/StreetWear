@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { createCheckout, finalizeCheckOut,payCheckout } from "../../redux/reduxSlices/checkout";
+import { createCheckout } from "../../redux/reduxSlices/checkout";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import { toast } from "sonner";
 const ChcekOut = () => {
+  console.log(import.meta.env.VITE_API_URL)
   const navigate=useNavigate()
   const {register,handleSubmit,formState}=useForm()
   const errors=formState.errors;
