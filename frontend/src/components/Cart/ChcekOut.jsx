@@ -30,7 +30,7 @@ const ChcekOut = () => {
       totalPrice:cart.totalPrice})).unwrap();
     if(response&&response.checkout&&response.checkout._id){
       const checkoutId=response.checkout._id;
-      const res=await axios.post("http://localhost:3000/streetwear/stripe/create-checkout-session",
+      const res=await axios.post(`${import.meta.env.VITE_API_URL}/streetwear/stripe/create-checkout-session`,
         {cart,checkoutId},{
           headers:{
             Authorization: `Bearer ${ localStorage.getItem("userToken")}`
