@@ -24,8 +24,8 @@ module.exports=catchAsync(async(req,res)=>{
         metadata:{
             checkoutId:String(req.body.checkoutId),
         },
-        success_url:`${process.env.CLIENT_URL}/order-confirmation/${req.body.checkoutId}`,
-        cancel_url:`${process.env.CLIENT_URL}/`
+        success_url:`https://street-wear-xji8.vercel.app/order-confirmation/${req.body.checkoutId}`,
+        cancel_url:`https://street-wear-xji8.vercel.app/`
     });
 
     res.json({url:session.url})
