@@ -17,7 +17,11 @@ const transports = [
     ),
   }),
 
-  new winston.transports.DailyRotateFile({
+ 
+ 
+];
+if(process.env.NODE_ENV !== 'production'){
+  transports.push( new winston.transports.DailyRotateFile({
     filename: 'logs/error-%DATE%.log',
     datePattern: 'YYYY-MM-DD',
     zippedArchive: true, 
@@ -25,15 +29,15 @@ const transports = [
     maxFiles: '14d',     
     level: 'error',
   }),
-
-  new winston.transports.DailyRotateFile({
+)
+transports.push( new winston.transports.DailyRotateFile({
     filename: 'logs/combined-%DATE%.log',
     datePattern: 'YYYY-MM-DD',
     zippedArchive: true,
     maxSize: '20m',
     maxFiles: '30d', 
-  }),
-];
+  }) )
+}
 const logger = winston.createLogger({
   level: level,
   format,
