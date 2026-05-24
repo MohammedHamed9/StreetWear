@@ -8,5 +8,5 @@ const { createCheckoutSchema, payCheckoutSchema, idParamSchema } = require("../v
 router.post("/",authCtrl.protected,validate(createCheckoutSchema),checkoutCtrl.createCheckout);
 router.put("/:id/pay",authCtrl.protected,validate(idParamSchema,"params"),validate(payCheckoutSchema),checkoutCtrl.payCheckout);
 router.put("/:id/finalize",authCtrl.protected,validate(idParamSchema,"params"),checkoutCtrl.finalizeCheckOut);
-
+router.get("/:id",authCtrl.protected,validate(idParamSchema,"params"),checkoutCtrl.getCheckoutById);
 module.exports=router

@@ -40,7 +40,7 @@ const App = () => {
       <Route path="/collections/:collection" element={<Collection/>}/>
       <Route path="/product/:id" element={<ProductDetails/>}/>
       <Route path="/checkout" element={<ChcekOut/>}/>
-      <Route path="/order-confirmation" element={<OrderConfirmation/>}/>
+      <Route path="/order-confirmation/:id" element={<OrderConfirmation/>}/>
       <Route path='/order/:orderId' element={<OrderDetails/>}/>
       <Route path='my-orders' element={<MyOrders/>}/>
       

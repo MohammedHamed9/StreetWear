@@ -5,7 +5,7 @@ import { fetchOrder } from "../redux/reduxSlices/order";
 
 const OrderDetails = () => {
   const {orderId}=useParams();
-  console.log(orderId)
+
   const {selectedOrder,loading,error}=useSelector(state=>state.order);
     const dispatch=useDispatch();
     useEffect(()=>{

@@ -22,7 +22,8 @@ const cartRoutes=require("./routes/cartRoutes")
 const checkoutRoutes=require("./routes/checkoutRoutes")
 const orderRoutes=require("./routes/orderRoutes")
 const subscriberRoutes=require("./routes/subscriberRoutes")
-app.use(express.json());
+const stripeRoute=require("./routes/stripeRoute")
+const stripeWebhookRoute=require("./routes/stripeWebhookRoute")
 app.use(cors({
   origin: ['http://localhost:5173', 'https://street-wear-xji8.vercel.app'], 
   credentials: true
@@ -31,6 +32,10 @@ app.use(cookieParser());
 app.use(morgan("dev"))
 app.use(helmet());
 app.use(hpp());
+app.use('/streetwear/stripewebhook',stripeWebhookRoute);
+//4242 4242 4242 4242
+app.use(express.json());
+
 app.use("/streetwear/user",userRoutes)
 app.use("/streetwear/category",categoryRoutes)
 app.use("/streetwear/brand",brandRoutes);
@@ -39,6 +44,7 @@ app.use("/streetwear/cart",cartRoutes);
 app.use("/streetwear/checkout",checkoutRoutes);
 app.use("/streetwear/order",orderRoutes);
 app.use("/streetwear/subscriber",subscriberRoutes);
+app.use('/streetwear/stripe',stripeRoute);
 
 app.use((req,res,next)=>{
     next(new appError(`cant find this route: ${req.originalUrl} in this server!`,404));

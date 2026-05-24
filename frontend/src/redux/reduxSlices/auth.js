@@ -27,7 +27,6 @@ export const loginUser=createAsyncThunk('auth/loginUser',
         return res.data;
     }
     catch(error){
-        console.log(error.response.data);
         toast.error(error.response.data.message)
         return rejectWithValue(error.response.data);
     }

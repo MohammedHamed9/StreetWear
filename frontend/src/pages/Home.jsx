@@ -17,6 +17,7 @@ const Home = () => {
     const dipatch=useDispatch()
     const{products,loading,error}=useSelector((state)=>state.product)
     const [bestSellerProduct,setBestSellerProduct]=useState(null);
+
 //fetch women collection
 useEffect(()=>{
     dipatch(fetchProductsWithFilters({

@@ -61,7 +61,7 @@ if(loading){
                
                 </div>
                <div className="flex flex-col items-end gap-2">
-                <p className="font-medium">${product.price.toLocaleString()}</p>
+                <p className="font-medium">${product.price.toLocaleString()*product.quantity}</p>
                 <button onClick={()=>handelremoveProduct({
                         productId:product.productId,
                         size:product.size,

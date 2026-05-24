@@ -38,7 +38,6 @@ const ProductDetails = ({productId}) => {
      return toast.error("Please select  a color and size before adding to the cart")
     setAddingButtom(true)
     try{
-      console.log({productId:fetchedId,userId:user?.id,guestId,})
       await dispatch(addToCart({productId:fetchedId,userId:user?.id,guestId,
       color:selectedColor,size:selectedSize,quantity:selectedQuantity}))
       .unwrap()

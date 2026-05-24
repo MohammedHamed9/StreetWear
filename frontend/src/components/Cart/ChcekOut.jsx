@@ -3,16 +3,16 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { createCheckout, finalizeCheckOut,payCheckout } from "../../redux/reduxSlices/checkout";
 import { useForm } from "react-hook-form";
-
+import axios from "axios";
+import { toast } from "sonner";
 const ChcekOut = () => {
   const navigate=useNavigate()
-
-      const {register,handleSubmit,formState}=useForm()
-      const errors=formState.errors;
-    const [checkId,setCheckId]=useState("");
-    const {cart,loading,error}=useSelector(state=>state.cart);
-    const {user,guestId}=useSelector(state=>state.auth);
-    const dispatch=useDispatch();
+  const {register,handleSubmit,formState}=useForm()
+  const errors=formState.errors;
+  const {cart,loading,error}=useSelector(state=>state.cart);
+  const {user,guestId}=useSelector(state=>state.auth);
+  const [formLoading,setFormLoading]=useState(false);
+  const dispatch=useDispatch();
   useEffect(()=>{
     if(!cart||!cart.products||cart.products.length==0)
       navigate('/');
@@ -21,37 +21,37 @@ const ChcekOut = () => {
   async function handelCreateCheckout(data){
     if(cart&&cart.products.length>0){
       try{
-    const res= 
-    await dispatch(createCheckout({
+        setFormLoading(true);
+    const response= 
+     await dispatch(createCheckout({
       checkoutItems:cart.products,
       shippingAddress:data,
-      paymentMethod:'Paypal',
-      totalPrice:cart.totalPrice}));
-      if(res.payload&&res.payload.checkout._id){
-      setCheckId(res.payload.checkout._id); 
+      paymentMethod:'Stripe',
+      totalPrice:cart.totalPrice})).unwrap();
+    if(response&&response.checkout&&response.checkout._id){
+      const checkoutId=response.checkout._id;
+      const res=await axios.post("http://localhost:3000/streetwear/stripe/create-checkout-session",
+        {cart,checkoutId},{
+          headers:{
+            Authorization: `Bearer ${ localStorage.getItem("userToken")}`
+          }
+        });
+      if(res.data.url){
+      window.location.assign(res.data.url);
       }
+    else{
+      toast.error("checkout error try again")
     }
+    }
+  }
     catch(error){
     console.log(error);  
+  }finally{
+    setFormLoading(false);
   }
 }
 }
-async function handelPaymentSuccess(details){
-  try{
-    const res=await dispatch(payCheckout(
-      {paymentDetails:{details},paymentStatus:'paid',id:checkId}))
-      if(res.payload.status==200){
-      const secondResponse=await dispatch(finalizeCheckOut(checkId));
-        if(secondResponse.payload.status==200){
-          navigate('/order-confirmation')
-        }
-          
-      }
 
-  }catch(error){
-    console.log(error);
-  }
-}
   if(loading)
   return <div className="flex flex-grow justify-center items-center min-h-[400px] space-x-2">
             <span className="sr-only">Loading...</span>
@@ -145,19 +145,12 @@ async function handelPaymentSuccess(details){
         </div>
            <div className="mt-6">
  
-            <button  type="submit"
-             className="w-full bg-black text-white rounded p-3">
-                Continue to Payment
+            <button  type="submit" disabled={formLoading}
+             className={`w-full ${formLoading ? "bg-gray-500" : "bg-black"} text-white rounded p-3`}>
+                {formLoading ? "Processing..." : "Continue to Payment"}
              </button>
            </div>
         </form>
-
-        {checkId && (
-          <button onClick={()=>handelPaymentSuccess("we did pay the checkout")} 
-           className="w-full bg-green-500 text-white rounded p-3 mt-10">
-                  Confirm the order
-               </button>
-        )}
       </div>
 
       {/* RIGHT - DIV */}
@@ -197,3 +190,30 @@ async function handelPaymentSuccess(details){
 }
 
 export default ChcekOut
+/*
+ if(cart&&cart.products.length>0){
+      try{
+        const response= 
+            await dispatch(createCheckout({
+              checkoutItems:cart.products,
+              shippingAddress:data,
+              paymentMethod:'Paypal',
+              totalPrice:cart.totalPrice})).unwrap();
+      if(response&&response.checkout&&response.checkout._id){
+        const res=await axios.post("http://localhost:3000/streetwear/stripe/create-checkout-session",
+        {cart},{
+          headers:{
+            Authorization: `Bearer ${ localStorage.getItem("userToken")}`
+          }
+        });
+        if(res.data.url)
+      window.location.href = res.data.url;
+    else{
+      toast.error("checkout error try again")
+    }
+      }
+    }catch(err){
+      console.log(err);
+      toast.error("checkout error try again",err);
+    }
+    }*/

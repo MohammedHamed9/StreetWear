@@ -1,5 +1,5 @@
 const mongoose=require("mongoose");
-const CheckouttemSchema =new mongoose.Schema({
+const CheckoutItemSchema =new mongoose.Schema({
   productId:{
     type:mongoose.Schema.ObjectId,
     ref:"Product",
@@ -30,7 +30,7 @@ const CheckoutSchema=new mongoose.Schema({
     type:mongoose.Schema.ObjectId,
     ref:"User"
     },
-    checkoutItems:[CheckouttemSchema],
+    checkoutItems:[CheckoutItemSchema],
     shippingAddress:{
       address:{type:String,required:true},
       city:{type:String,required:true},

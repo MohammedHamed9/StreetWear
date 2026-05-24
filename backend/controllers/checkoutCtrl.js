@@ -80,5 +80,14 @@ const checkoutCtrl={
             return next(new appError("Checkout is not paid yet!",400));
         }
     }),
+    getCheckoutById: catchAsync(async (req,res,next)=>{
+
+        const checkout=await Checkout.findOne({_id:req.params.id,user:req.user._id});
+        if(!checkout)
+            return next(new appError("Checkout Not Found!",404));
+        return res.status(200).json({
+            checkout
+        });
+    })
 }
 module.exports=checkoutCtrl;

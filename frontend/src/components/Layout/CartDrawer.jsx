@@ -1,10 +1,11 @@
-import { useRef, useState } from "react"
+import { useRef } from "react"
 import { IoMdClose } from "react-icons/io";
 import CartContent from "../Cart/CartContent";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCart } from "../../redux/reduxSlices/cart";
 import { useEffect } from "react";
+
 
 const CartDrawer = ({drawerOpen,setDrawerOpen}) => {
   const {user,guestId}=useSelector(state=>state.auth);
@@ -32,7 +33,7 @@ return ()=>document.removeEventListener("mousedown",handelClick)
     setDrawerOpen(false)
     if(!user)
       return navigate("/login?redirect=checkout")
-
+   
     navigate("/checkout")
   }
   return (

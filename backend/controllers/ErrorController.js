@@ -1,3 +1,5 @@
+const logger = require("../utils/logger");
+
 module.exports=(err,req,res,next)=>{
     err.statusCode=err.statusCode ||500;
     err.status=err.status||'fail'
@@ -14,10 +16,6 @@ const sendDev=(err,res)=>{
     logger.error({
         message:`ERROR 💥 ${err.message} `,
         stack:err.stack,
-        method:req.method,
-        url:req.originalUrl,
-        ip:req.ip,
-        user:req.user?._id||null,
     });
     return res.status(err.statusCode).json({
             success: false,

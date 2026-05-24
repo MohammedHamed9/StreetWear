@@ -27,7 +27,6 @@
     export const addToCart=createAsyncThunk('cart/addToCart',
         async({productId,userId,guestId,size,color,quantity},{rejectWithValue})=>{
             try{
-                console.log({productId,userId,guestId,size,color,quantity})
             const res=await axios.post(`${VITE_API_URL}/streetwear/cart`,
                 {productId,userId,guestId,size,color,quantity});
             toast.success("the product is added successfully..")

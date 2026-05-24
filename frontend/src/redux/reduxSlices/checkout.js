@@ -14,6 +14,7 @@ export const createCheckout=createAsyncThunk('checkout/createCheckout',
                     }
                 }
             )
+            console.log(res.data);
             return res.data;
            }
            catch(error){

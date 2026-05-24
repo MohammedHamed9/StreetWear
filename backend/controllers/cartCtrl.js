@@ -12,7 +12,6 @@ return null
 const cartCtrl={
     addToCart: catchAsync(async (req,res,next)=>{
            const {productId,userId,guestId,size,color,quantity}=req.body
-           console.log({productId,userId,guestId,size,color,quantity})
            const product=await Product.findOne({
             _id:productId,
             variants:{
@@ -47,7 +46,7 @@ const cartCtrl={
                 productId,
                 name:product.name,
                 image:product.images[0].url,
-                price:product.price,
+                price:product.discountPrice,
                 size,
                 color,
                 quantity

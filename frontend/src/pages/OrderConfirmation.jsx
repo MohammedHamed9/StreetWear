@@ -1,11 +1,39 @@
+import axios from "axios";
+import { useState } from "react";
+import { useEffect } from "react";
 import { useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
 function calcEstimatedDelivary(createdAt){
     const date=new Date(createdAt);
     date.setDate(date.getDate()+10)
     return date.toLocaleDateString();
   }
 const OrderConfirmation = () => {
-  const {checkout,loading,error}=useSelector(state=>state.checkout)
+  const {error}=useSelector(state=>state.checkout)
+  const checkoutId=useParams().id;
+  console.log("checkoutId:",checkoutId);
+  const [loading,setLoading]=useState(true);
+  const [checkout,setCheckout]=useState(null);
+  useEffect(()=>{
+    const fetchCheckout=async()=>{
+     
+        try{
+          setLoading(true);
+            const res=await axios.get(`${import.meta.env.VITE_API_URL}/streetwear/checkout/${checkoutId}`,
+            {
+                headers:{ Authorization:`Bearer ${localStorage.getItem("userToken")}`}
+            });
+            const data=res.data;
+            setCheckout(data.checkout);
+        }catch(error){
+            console.log(error);
+        }finally{
+            setLoading(false);
+        }
+      }
+    if(checkoutId)
+    fetchCheckout();
+  },[checkoutId])
     if(loading)
   return <div className="flex flex-grow justify-center items-center min-h-[400px] space-x-2">
             <span className="sr-only">Loading...</span>
@@ -44,7 +72,7 @@ const OrderConfirmation = () => {
                 </div>
                 </div>
                 <div>
-                <p className="text-md">${item.price?.toLocaleString()}</p>
+                <p className="text-md">${(item.price * item.quantity)?.toLocaleString()}</p>
                 <p className="text-sm text-gray-500">Qty:{item.quantity}</p>
                 </div>
               </div>
