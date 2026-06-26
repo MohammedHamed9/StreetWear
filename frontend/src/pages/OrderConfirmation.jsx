@@ -11,8 +11,6 @@ function calcEstimatedDelivary(createdAt){
 const OrderConfirmation = () => {
   const {error}=useSelector(state=>state.checkout)
   const checkoutId=useParams().id;
-  console.log("checkoutId:",checkoutId);
-  console.log(import.meta.env.VITE_API_URL)
   const [loading,setLoading]=useState(true);
   const [checkout,setCheckout]=useState(null);
   useEffect(()=>{

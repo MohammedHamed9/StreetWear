@@ -33,7 +33,6 @@ app.use(morgan("dev"))
 app.use(helmet());
 app.use(hpp());
 app.use('/streetwear/stripewebhook',stripeWebhookRoute);
-//4242 4242 4242 4242
 app.use(express.json());
 
 app.use("/streetwear/user",userRoutes)

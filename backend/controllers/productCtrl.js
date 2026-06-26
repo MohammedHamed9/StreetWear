@@ -123,14 +123,14 @@ const productCtrl={
      let { sortBy,page,limit,skip,fields, collections, gender, minPrice, maxPrice, 
         search, category, brand,material,size,color
         } =req.query;
-
-    const cacheKey = generateCacheKey("all-products", req.query);
+        console.log(sortBy)
+    /*const cacheKey = generateCacheKey("all-products", req.query);
     const cached = await getCache(cacheKey);
     if(cached) {
         console.log(cacheKey);
         console.log("Products retrieved from cache.");
       return res.status(200).json(cached);
-    }
+    }*/
     let query={}
     if(collections &&collections.toLowerCase()!='all'){
         query.collections=collections 
@@ -183,6 +183,12 @@ const productCtrl={
                 color=color.includes(",")?color.split(","):color
                 query["variants.color"]={$in:color}
             }
+    if(sortBy){
+       if(sortBy==="priceAsc") sortBy={price:1}
+       else if(sortBy==="priceDesc") sortBy={price:-1}
+       else if(sortBy==="popularity") sortBy={rating:-1}
+        };
+
         const products=await Product.find(query)
             .populate("category","name type")
             .populate("brand","name")
@@ -202,7 +208,7 @@ const productCtrl={
                     hasNext,
                 }
             };
-            await setCache(cacheKey, response);
+           // await setCache(cacheKey, response);
             return res.status(200).json(response);
     }),
     getProduct: catchAsync(async(req,res,next)=>{

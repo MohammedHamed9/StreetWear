@@ -22,6 +22,9 @@ import ScrollTopButtom from './components/Common/ScrollTopButton'
 import {Provider} from "react-redux"
 import store from './redux/store'
 import ProtectedRoute from './components/Common/ProtectedRoute'
+import Forgetpassword from './pages/Forgetpassword'
+import ConfirmResetToken from './pages/ConfirmResetToken'
+import ResetPasswordPage from './pages/ResetPasswordPage'
 const App = () => {
   return (
     <Provider store={store}>
@@ -35,6 +38,9 @@ const App = () => {
       <Route index element={<Home/>}/>
       <Route path='/login' element={<Login/>}/>
       <Route path='/register' element={<Register/>}/>
+      <Route path='/forgot-password' element={<Forgetpassword/>}/>
+      <Route path='/confirm-reset-password' element={<ConfirmResetToken/>}/>
+      <Route path='/reset-password/:token' element={<ResetPasswordPage/>}/>
       <Route path='/profile' element={<Profile/>}/>
       <Route path='/myOrders' element={<MyOrders/>}/>
       <Route path="/collections/:collection" element={<Collection/>}/>

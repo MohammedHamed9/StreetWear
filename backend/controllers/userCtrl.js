@@ -82,7 +82,7 @@ const usetCtrl={
     }),
     getMe: catchAsync(async(req,res,next)=>{
             return res.status(200).json({
-                message:`welcome `,
+                message:`welcome ${req.user.name}`,
                 user:req.user
             });
     }),
@@ -105,22 +105,40 @@ const usetCtrl={
         const email=req.body.email;
          const user=await User.findOne({email});
         if(!user){
-            return next(new appError('This user is not found!',404));
+            return res.status(200).json({
+            message:'If the account exists, a reset email has been sent'
+        })
         }
         let resetToken=user.createResetToken();
-        const restUrl=`${req.get('host')}://streetwear/user/reset-password/${resetToken}`
+        //const restUrl=`${req.get('host')}://streetwear/user/reset-password/${resetToken}`
         await user.save();
         sendEmail({ 
             email,
             subject:"password Reset , Your password reset token (valid for only 10 minutes)",
-           html: `<b>Hi ${user.name} ,<br>
-        Forgot your password? 
-        Submit a PATCH request with your new password to:<br> ${restUrl}<br>
-        If you didn't forget your password, please ignore this email!<br>
-        thank you.</b>`});
-          res.status(200).json({
-            message:'the email is sent...'
+           html: `Hi <b >${user.name},</b><br>
+           Someone is attempting to reset the password on your account.<br><br>
+           <b>When:</b> ${new Date().toLocaleString('en-US', { timeZoneName: 'short' })}<br>
+           <b>Device:</b> ${req.headers['user-agent'] || 'Unknown Device'}<br>
+           <b>Near:</b> Cairo Governorate, Egypt<br><br>
+           If this was you, your verification code is:<br><br>
+           <span style="font-size: 24px;"><b>${resetToken}</b></span><br><br>
+           If you didn't request this, please ignore this email safely.`});
+        res.status(200).json({
+            message:'If the account exists, a reset email has been sent'
         })
+    }),
+   checkResetToken: catchAsync(async(req,res,next)=>{
+        const hashToken=crypto.createHash("sha256").update(req.body.token).digest('hex');
+        const user=await User.findOne({
+            passwordRestToken:hashToken,
+            passwordRestExpires:{$gte:Date.now()}
+        });
+        if(!user){
+            return next(new appError('Invalid Token or its expired',404));
+        }
+        res.status(200).json({
+            message:'The token is valid, you can reset your password now.'
+        });
     }),
     resetPassword: catchAsync(async(req,res,next)=>{
         const hashToken=crypto.createHash("sha256").update(req.params.token).digest('hex');

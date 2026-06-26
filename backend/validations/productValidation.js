@@ -283,7 +283,7 @@ const getAllQueryProductsSchema=Joi.object({
     }),
     minPrice:Joi.number().min(0),
     maxPrice:Joi.number().min(0),
-    sortBy:Joi.string().valid("priceAsc","priceDesc","popularity"),
+    sortBy:Joi.string().trim().allow("").default("createdAt:-1"),
     search:Joi.string().trim().max(100),
     category:Joi.string().trim().max(100),
     brand:Joi.string().trim().max(100),

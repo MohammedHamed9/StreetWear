@@ -15,10 +15,7 @@ const transports = [
         (info) => `[${info.timestamp}] [${info.level}]: ${info.message}`
       )
     ),
-  }),
-
- 
- 
+  }), 
 ];
 if(process.env.NODE_ENV !== 'production'){
   transports.push( new winston.transports.DailyRotateFile({

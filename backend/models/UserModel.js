@@ -10,7 +10,7 @@ const addressSchema=mongoose.Schema({
   city:{
     type:String,
     tirm:true,
-  },
+  },    
   area: { 
     type: String, 
     trim: true 
@@ -88,8 +88,8 @@ UserSchema.methods.matchPasswords=async(addedPass,truePassword)=>{
     return await bcrypt.compare(addedPass,truePassword);
 }
 UserSchema.methods.createResetToken=function(){
-    const resetToken=crypto.randomBytes(32).toString("hex");
-    this.passwordRestToken=crypto.createHash("sha256").update(resetToken).digest("hex")
+    const resetToken=crypto.randomInt(100000,1000000).toString();
+    this.passwordRestToken=crypto.createHash("sha256").update(resetToken).digest("hex")    
     this.passwordRestExpires=Date.now()+10*60*1000
     return resetToken;
 }

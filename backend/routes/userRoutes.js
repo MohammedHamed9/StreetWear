@@ -21,7 +21,8 @@ router.get("/logout",userCtrl.logout);
 router.get("/getProfile",auth.protected ,userCtrl.getMe);
 router.patch("/update-me",auth.protected,
 upload.single("avatar"),resize(200,200),validate(updateMeSchema),userCtrl.updateMe);
-router.get("/forget-password",validate(forgetPasswordSchema),limiter,userCtrl.forgetPassword)
+router.post("/forget-password",validate(forgetPasswordSchema),limiter,userCtrl.forgetPassword)
+router.post("/checkResetToken",limiter,userCtrl.checkResetToken)
 router.post("/reset-password/:token",validate(resetPasswordSchema),limiter,userCtrl.resetPassword);
 router.post("/update-password",auth.protected,validate(updatePasswordSchema),userCtrl.updatePassword);
 
