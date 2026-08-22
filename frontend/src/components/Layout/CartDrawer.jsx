@@ -13,7 +13,8 @@ const CartDrawer = ({drawerOpen,setDrawerOpen}) => {
   const userId=user?.id;
   const navigate=useNavigate()
   const dispatch=useDispatch();
-const drawer = useRef();useEffect(()=>{
+const drawer = useRef();
+useEffect(()=>{
   if(userId|| guestId)
     dispatch(fetchCart({userId,guestId}));
 },[dispatch,user?.id,guestId,navigate]);

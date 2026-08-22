@@ -65,6 +65,7 @@ function handelImageUpload(e){
 async function handelSubmit(e){
   e.preventDefault()
   const formDate=new FormData()
+//Normal fields 
 const fieldsToSend = [
     "name", "admin_created_id", "collections", "description", 
     "discountPrice", "price", "fit", "gender", "isFeatured", 

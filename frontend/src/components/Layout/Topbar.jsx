@@ -2,6 +2,7 @@ import {TbBrandMeta} from 'react-icons/tb'
 import {IoLogoInstagram} from'react-icons/io'
 import {RiTwitterXLine} from'react-icons/ri'
 const Topbar = () => {
+    
   return (
     <div className="bg-[#ea2e0e] text-white">
         <div className="container mx-auto px-10 py-4 flex justify-between items-center">

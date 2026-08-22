@@ -6,7 +6,7 @@ const addressSchema=mongoose.Schema({
    alias:{
     type:String,
     tirm:true,
-},
+    },
   city:{
     type:String,
     tirm:true,
@@ -17,11 +17,24 @@ const addressSchema=mongoose.Schema({
   },
   street: { 
     type: String, 
+    trim: true
   },
-  building: Number,
-  floor: Number,
-  apartment: Number,
-  postalCode: String,
+  building: { 
+    type: Number, 
+    trim: true
+  },
+  floor: { 
+    type: Number, 
+    trim: true
+  },
+  apartment: { 
+    type: Number, 
+    trim: true
+  },
+  postalCode: { 
+    type: String, 
+    trim: true
+  },
   isDefault: { 
     type: Boolean, 
     default: false 

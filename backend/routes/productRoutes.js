@@ -10,11 +10,11 @@ const {createProductSchema,
 getAllQueryProductsSchema,
 ProductIdParams
 }=require("../validations/productValidation");
-const prepareQuery=require("../middlewares/prepareQuery")
 const parseReqBody=require("../middlewares/parseBeforeValidate")
 
 router.post("/",authCtrl.protected,authCtrl.restrictedTo("Admin"),
-upload.array("product_images",5),resize(500,500),parseReqBody(["variants"]),
+upload.array("product_images",5),resize(500,500),
+parseReqBody(["variants"]),
 validate(createProductSchema),
 productCtrl.createProduct);
 
@@ -30,7 +30,6 @@ router.get("/:id",validate(ProductIdParams,"params"),productCtrl.getProduct);
  //there phases 1-validation 2-normlization 3-controller
 router.get("/",
     validate(getAllQueryProductsSchema,"query"),
-    prepareQuery,
     productCtrl.getAllProducts);
 router.delete("/:id",authCtrl.protected,authCtrl.restrictedTo("Admin"),validate(ProductIdParams,"params"),productCtrl.deleteProduct);
 module.exports=router

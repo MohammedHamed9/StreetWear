@@ -81,13 +81,14 @@ const usetCtrl={
    });
     }),
     getMe: catchAsync(async(req,res,next)=>{
-            return res.status(200).json({
+           const user=await User.findById(req.user.id).select('name email role addresses avatar phone');
+        return res.status(200).json({
                 message:`welcome ${req.user.name}`,
-                user:req.user
+                user
             });
     }),
     updateMe: catchAsync(async(req,res,next)=>{ 
-            console.log(req.body);
+
          if(req.file){
             let result=await uploadToCloudinary(req.file.buffer,"users");
             req.body.avatar=result.url;
@@ -127,7 +128,7 @@ const usetCtrl={
             message:'If the account exists, a reset email has been sent'
         })
     }),
-   checkResetToken: catchAsync(async(req,res,next)=>{
+    checkResetToken: catchAsync(async(req,res,next)=>{
         const hashToken=crypto.createHash("sha256").update(req.body.token).digest('hex');
         const user=await User.findOne({
             passwordRestToken:hashToken,

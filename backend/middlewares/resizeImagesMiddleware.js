@@ -3,6 +3,7 @@ const { collection } = require("../models/UserModel");
 module.exports=(width,hieght)=>{
     return async (req,res,next)=>{
      if(!req.file && !req.files)return next()
+
      if(req.file){
     req.file.buffer = await sharp(req.file.buffer)
      .resize(width,hieght)

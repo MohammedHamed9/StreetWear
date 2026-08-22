@@ -28,11 +28,11 @@ export const fetchProductsWithFilters=createAsyncThunk(
     'product/fetchProductsWithFilters',
     async(queryParams ,{rejectWithValue})=>{
         try{
+            console.log(queryParams)
             const res=await axios.get(`${VITE_API_URL}/streetwear/product`,{
                 params:queryParams,
                 withCredentials:true
             });
-           
             return res.data
         }catch(error){
             toast.error(error.response.data.message);

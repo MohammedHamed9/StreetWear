@@ -6,6 +6,7 @@ const adminCtrl = require("../controllers/adminCtrl");
 const upload = require("../middlewares/uploadMiddlware");
 const resize = require("../middlewares/resizeImagesMiddleware");
 const validate = require("../middlewares/validation");
+const parseReqBody = require("../middlewares/parseBeforeValidate");
 const { loginSchema,
      registerSchema,
      updateMeSchema,
@@ -20,7 +21,9 @@ router.post("/login",validate(loginSchema),limiter,userCtrl.login);
 router.get("/logout",userCtrl.logout);
 router.get("/getProfile",auth.protected ,userCtrl.getMe);
 router.patch("/update-me",auth.protected,
-upload.single("avatar"),resize(200,200),validate(updateMeSchema),userCtrl.updateMe);
+upload.single("avatar"),resize(200,200),
+parseReqBody(["addresses"]),validate(updateMeSchema),
+userCtrl.updateMe);
 router.post("/forget-password",validate(forgetPasswordSchema),limiter,userCtrl.forgetPassword)
 router.post("/checkResetToken",limiter,userCtrl.checkResetToken)
 router.post("/reset-password/:token",validate(resetPasswordSchema),limiter,userCtrl.resetPassword);

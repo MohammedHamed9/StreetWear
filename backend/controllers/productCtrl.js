@@ -120,10 +120,13 @@ const productCtrl={
             });
     }),
     getAllProducts: catchAsync(async(req,res,next)=>{
-     let { sortBy,page,limit,skip,fields, collections, gender, minPrice, maxPrice, 
+     let { sortBy,page,limit,fields, collections, gender, minPrice, maxPrice, 
         search, category, brand,material,size,color
         } =req.query;
-        console.log(sortBy)
+        page=parseInt(page,10)||1;
+        limit =parseInt(limit,10)||10;
+        let skip=( page - 1 ) * limit
+        
     /*const cacheKey = generateCacheKey("all-products", req.query);
     const cached = await getCache(cacheKey);
     if(cached) {
@@ -184,11 +187,25 @@ const productCtrl={
                 query["variants.color"]={$in:color}
             }
     if(sortBy){
-       if(sortBy==="priceAsc") sortBy={price:1}
-       else if(sortBy==="priceDesc") sortBy={price:-1}
-       else if(sortBy==="popularity") sortBy={rating:-1}
+            switch(sortBy){
+                case "priceAsc":
+                   sortBy={price:1}
+                   break;
+                case "priceDesc":
+                    sortBy={price:-1}
+                    break;
+                case "popularity":
+                    sortBy={rating:-1}
+                    break;
+                default:
+                sortBy={rating:-1}
+            }
         };
-
+    if(fields){
+            fields=req.query.fields.split(",").join(" ")
+        }else{
+            fields=("-__v");
+        }
         const products=await Product.find(query)
             .populate("category","name type")
             .populate("brand","name")
@@ -199,13 +216,17 @@ const productCtrl={
             const total=await Product.countDocuments(query);
             const hasPrev=page>1;
             const hasNext=(page * limit) <total
+            const totalPages=Math.ceil(total  / limit);
+            console.log("totalPages",totalPages,total,limit)
             const response = {
                 products,
                 paginate:{
                     page,
+                    limit,
                     total,
                     hasPrev,
                     hasNext,
+                    totalPages
                 }
             };
            // await setCache(cacheKey, response);

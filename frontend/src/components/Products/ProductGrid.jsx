@@ -27,6 +27,7 @@ const ProductGrid = ({products}) => {
     ))}
     </div>
     )
+    
     }
   </>
     

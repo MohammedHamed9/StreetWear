@@ -43,13 +43,14 @@ const authCtrl={
     },
     restrictedTo:(...roles)=>{
         return (req,res,next)=>{
-            if(!roles.includes(req.user.role))
+            if(!roles.includes(req.user.role)){
               logger.warn({
                 message:`Unauthorized access attempt to ${req.originalUrl} by user: ${req.user.name} with role: ${req.user.role}`,
                 userId:req.user._id,
                 email:req.user.email
               });
-                return next(new appError("SORRY U CANT ACCESS THIS ROUTE !",403))
+            return next(new appError("SORRY U CANT ACCESS THIS ROUTE !",403))
+            }
             next();
         }
     }
